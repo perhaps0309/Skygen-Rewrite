@@ -1,0 +1,21 @@
+{   
+    "editor.formatOnSave": true,
+    "search.exclude": {
+        "**/.git": true,
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/lib": true
+    },
+    "files.exclude": {
+        "**/lib": true 
+    },
+    "cSpell.words": [
+        "gametest",
+        "gametests",
+        "mcaddon",
+        "minecart",
+        "shulker",
+        "zoglin"
+    ],
+    "editor.tabSize": 4,
+}

@@ -1,0 +1,5 @@
+{
+  "watch": ["scripts", "behavior_packs"],
+  "ext": "ts,d.ts",
+  "exec": "npm run local-deploy"
+}
