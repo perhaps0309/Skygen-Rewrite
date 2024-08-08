@@ -13,7 +13,7 @@ import {
 	EntityInventoryComponent,
 } from "@minecraft/server";
 import { telekinesisAfterBreak } from "./events/afterEvents/playerBreakBlock";
-import { itemUseOn } from "./events/afterEvents/ItemUseOn";
+import { itemUseOn } from "./events/beforeEvents/ItemUseOn";
 import { PlayerDataHandler } from "./libraries/playerData";
 import { } from "@minecraft/server-ui";
 import {
