@@ -32,6 +32,7 @@ function tickSystem() {
             if (!block) continue;
             if (block.typeId === "minecraft:air") {
                 let generatorType = genBlocks[blockPos];
+                console.warn(generatorType)
                 dimension.setBlockType(blockVector3, generatorType);
             }
         }
@@ -59,30 +60,32 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
 
     // Set the block to a repeating command block
 
-    player.sendMessage(`Set a repeating command block to generate ${generatorType} at ${block.x}, ${block.y + 1}, ${block.z}`);
-    block.dimension.setBlockType(block, "minecraft:bedrock");
-    event.cancel = true;
-
-    // Remove the item from the player's inventory
-    const playerInventory = event.source.getComponent("minecraft:inventory") as EntityInventoryComponent;
-    if (!playerInventory.container) return;
-
     system.run(function () {
-        // Remove the item from the player's inventory if amount is 1
-        const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
-        if (playerInventory) {
-            const container = playerInventory.container;
-            if (!container) return;
-            for (let i = 0; i < container.size; i++) {
-                const slot = container.getItem(i);
-                if (slot && slot.typeId === item.typeId && slot.getLore()[0] === itemLore[0]) {
-                    container.setItem(i, new ItemStack("minecraft:air", 1));
-                    break;
+        player.sendMessage(`Set a repeating command block to generate ${generatorType} at ${block.x}, ${block.y + 1}, ${block.z}`);
+        block.dimension.setBlockType(block, "minecraft:bedrock");
+        event.cancel = true;
+
+        // Remove the item from the player's inventory
+        const playerInventory = event.source.getComponent("minecraft:inventory") as EntityInventoryComponent;
+        if (!playerInventory.container) return;
+
+        system.run(function () {
+            // Remove the item from the player's inventory if amount is 1
+            const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
+            if (playerInventory) {
+                const container = playerInventory.container;
+                if (!container) return;
+                for (let i = 0; i < container.size; i++) {
+                    const slot = container.getItem(i);
+                    if (slot && slot.typeId === item.typeId && slot.getLore()[0] === itemLore[0]) {
+                        container.setItem(i, new ItemStack("minecraft:air", 1));
+                        break;
+                    }
                 }
             }
-        }
-    })
+        })
 
-    // Add the block to the genBlocks object
-    genBlocks[`${block.x},${block.y},${block.z}`] = generatorType;
+        // Add the block to the genBlocks object
+        genBlocks[`${block.x},${block.y},${block.z}`] = generatorType;
+    })
 }

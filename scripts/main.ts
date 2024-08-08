@@ -131,7 +131,6 @@ function setEnchantmentLevel(player: Player, enchantment: string, level: number)
 	}
 
 	const enchantmentData = (ItemDataHandler.get("enchantments", playerItem) as any) || {};
-	console.warn(enchantmentData);
 
 	enchantmentData[enchantment].level = level;
 	ItemDataHandler.set("enchantments", enchantmentData, playerItem, player);
@@ -285,7 +284,7 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 			updateLore(event.player, item);
 
 			// Give the player a coal generator chicken
-			const itemStack = new ItemStack("minecraft:spawn", 1);
+			const itemStack = new ItemStack("minecraft:stone", 1);
 			itemStack.nameTag = MinecraftColors.DARK_GRAY + "Coal" + " §r§fGenerator";
 			itemStack.keepOnDeath = true;
 			itemStack.setLore([MinecraftColors.GRAY + "Right-click to spawn a §8coal §7generator"]);
