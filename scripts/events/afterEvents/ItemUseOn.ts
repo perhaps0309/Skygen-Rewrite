@@ -21,14 +21,13 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
     const item = event.itemStack;
     const block = event.block;
 
-    // Check if player is a player, and is holding a spawn egg 
+    // Check if player is a player, and is holding stone
     if (!item) return;
 
-    console.warn(!player, !item, item.typeId !== "minecraft:egg", block.typeId !== "minecraft:dirt")
-    if (!player || !item || item.typeId !== "minecraft:egg" || block.typeId !== "minecraft:dirt") return;
+    console.warn(!player, !item, item.typeId !== "minecraft:stone", block.typeId !== "minecraft:dirt")
+    if (!player || !item || item.typeId !== "minecraft:stone" || block.typeId !== "minecraft:dirt") return;
 
     const itemLore = item.getLore()
-    console.warn(!itemLore[0], !itemLore[0].includes("generator"))
     if (!itemLore[0] || !itemLore[0].includes("generator")) return;
     let generatorType: string = itemLore[0].split(" generator")[0].split(" ")[1];
 
@@ -43,6 +42,18 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
     if (!playerInventory.container) return;
 
     system.run(function () {
-        item.amount -= 1;
+        // Remove the item from the player's inventory if amount is 1
+        const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
+        if (playerInventory) {
+            const container = playerInventory.container;
+            if (!container) return;
+            for (let i = 0; i < container.size; i++) {
+                const slot = container.getItem(i);
+                if (slot && slot.typeId === item.typeId && slot.getLore()[0] === itemLore[0]) {
+                    container.setItem(i, new ItemStack("minecraft:air", 1));
+                    break;
+                }
+            }
+        }
     })
 }
