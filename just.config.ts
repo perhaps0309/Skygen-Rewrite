@@ -33,7 +33,7 @@ const bundleTaskOptions: BundleTaskParameters = {
 const copyTaskOptions: CopyTaskParameters = {
 	copyToBehaviorPacks: [`./behavior_packs/${projectName}`],
 	copyToScripts: ["./dist/scripts"],
-	// copyToResourcePacks: [`./resource_packs/${projectName}`],
+	copyToResourcePacks: [`./resource_packs/${projectName}`],
 };
 
 const mcaddonTaskOptions: ZipTaskParameters = {
@@ -62,8 +62,7 @@ task("package", series("clean-collateral", "copyArtifacts"));
 task(
 	"local-deploy",
 	watchTask(
-		// ["scripts/**/*.ts", "behavior_packs/**/*.{json,lang,png}", "resource_packs/**/*.{json,lang,png}"],
-		["scripts/**/*.ts", "behavior_packs/**/*.{json,lang,png}"],
+		["scripts/**/*.ts", "behavior_packs/**/*.{json,lang,png}", "resource_packs/**/*.{json,lang,png}"],
 		series("clean-local", "build", "package")
 	)
 );

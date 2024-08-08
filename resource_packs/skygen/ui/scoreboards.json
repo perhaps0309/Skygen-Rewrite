@@ -1,0 +1,24 @@
+{
+    "namespace": "scoreboard",
+    "scoreboard_sidebar_score": {
+        "type": "label",
+        "layer": 2,
+        "size": [
+            "default",
+            10
+        ],
+        "text": "#player_score_sidebar",
+        "text_alignment": "right",
+        "anchor_from": "top_right",
+        "anchor_to": "top_right",
+        "inherit_max_sibling_width": true,
+        "locked_alpha": 1.0,
+        "bindings": [
+            {
+                "binding_name": "#player_score_sidebar",
+                "binding_type": "collection",
+                "binding_collection_name": "scoreboard_scores"
+            }
+        ]
+    }
+}

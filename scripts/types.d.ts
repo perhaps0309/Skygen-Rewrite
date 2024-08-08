@@ -54,3 +54,9 @@ export type EnchantmentPurchaseT = {
     effectSymbol?: string;
     maxLevel?: number;
 }
+
+export type CommandT = {
+    name: string,
+    requiredRank: number,
+    callback: (...args: any[]) => any;
+}

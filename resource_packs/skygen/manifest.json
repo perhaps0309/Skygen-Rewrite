@@ -1,0 +1,40 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Skygen Resource Pack",
+    "description": "skygen resource pack nom nom",
+    "uuid": "f68a52c9-f760-4f6c-8d6a-f0dd81dfd857",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      20,
+      30
+    ]
+  },
+  "modules": [
+    {
+      "description": "Skygen Resource Pack",
+      "type": "resources",
+      "uuid": "6793ac91-3851-4106-ae84-f9b7b8d75d1d",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "31fe3217-1a92-44cb-886a-6d879eb2e9e7",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}
