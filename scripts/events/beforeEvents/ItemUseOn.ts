@@ -14,6 +14,7 @@ import {
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/baseData";
 import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
+import { removeFormat } from "../../libraries/chatFormat";
 
 let genTypes: { [key: string]: string } = {
     "coal": "minecraft:coal_ore"
@@ -56,7 +57,8 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
 
     const itemLore = item.getLore()
     if (!itemLore[0] || !itemLore[0].includes("generator")) return;
-    let generatorType: string = itemLore[0].split(" generator")[0].split(" ")[1];
+    let generatorType: string = removeFormat(itemLore[0].split(" generator")[0].split("a ")[1].split("generator")[0].toLowerCase());
+    console.warn(generatorType);
 
     // Set the block to a repeating command block
 
