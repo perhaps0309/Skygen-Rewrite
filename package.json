@@ -26,6 +26,8 @@
 		"@minecraft/server": "^1.15.0-beta",
 		"@minecraft/server-ui": "^1.4.0-beta",
 		"@minecraft/vanilla-data": "^1.20.60",
-		"just-scripts": "^2.3.0"
+		"fs": "^0.0.1-security",
+		"just-scripts": "^2.3.0",
+		"path": "^0.12.7"
 	}
 }

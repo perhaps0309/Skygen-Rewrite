@@ -96,51 +96,16 @@ world.afterEvents.chatSend.subscribe((event) => {
 
 // Intercept players interacting with a custom villager
 
-const enchantments: { [key: string]: EnchantmentPurchaseT } = {
-	luck1: {
-		title: "§b§lLuck I",
-		description: "§6Increases the chance of getting rare drops",
-		name: "luck1",
-		baseCost: 50000,
-		costIncrease: 50,
-		effectTitle: "%% chance of getting rare drops",
-		effectType: "percent",
-		effectAmount: 5,
-		effectSymbol: "+",
-	},
-	luck2: {
-		title: "§2§lLuck II",
-		description: "Greatly increases the chance of getting rare drops",
-		name: "luck2",
-		baseCost: 100000,
-		costIncrease: 100,
-		effectTitle: "%% chance of getting rare drops",
-		effectType: "percent",
-		effectAmount: 15,
-		effectSymbol: "+",
-	},
-	xpboost: {
-		title: "§d§lXP Boost",
-		description: "§6Increases the amount of XP gained per block broken",
-		name: "xpboost",
-		baseCost: 75000,
-		costIncrease: 10,
-		effectTitle: "%% XP gained",
-		effectType: "percent",
-		effectAmount: 25,
-		effectSymbol: "+",
-	},
-	fortune: {
-		title: "§e§lFortune",
-		description: "§aIncreases the maximum amount of blocks dropped by 1 per level",
-		name: "fortune",
-		baseCost: 25000,
-		costIncrease: 25, // 25% increase per level
-		effectTitle: " maximum drops",
-		effectType: "flat",
-		effectAmount: 1,
-		effectSymbol: "+",
-	}
+let enchantmentsPath = "scripts/enchantments";
+const enchantments: { [key: string]: EnchantmentPurchaseT } = {};
+
+// Load all enchantments
+import { readdirSync } from "fs";
+import { join } from "path";
+const files = readdirSync(enchantmentsPath);
+for (const file of files) {
+	const enchantmentData = require(join(enchantmentsPath, file)).default;
+	enchantments[enchantmentData.name] = enchantmentData;
 }
 
 // Function to get the player's enchantment level
