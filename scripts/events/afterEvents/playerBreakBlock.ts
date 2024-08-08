@@ -8,8 +8,9 @@ import {
     system,
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/baseData";
-import { addLore, ItemData, removeLore } from "../../libraries/itemData";
-import { addEffect, PlayerData } from "../../libraries/playerData";
+import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
+import { PlayerDataHandler } from "../../libraries/playerData";
+import { EffectDataT, EnchantmentDataT } from "../../types";
 
 export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
     const player = event.player;
@@ -17,12 +18,7 @@ export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
     const playerItemAfterBreak = event.itemStackAfterBreak; // Use this if you need the current state of the item
     const blockBroken = event.brokenBlockPermutation;
     const blockId = blockBroken.type.id;
-    if (
-        player.getGameMode() != GameMode.survival ||
-        !playerItem ||
-        !playerItemAfterBreak
-    )
-        return;
+    if (player.getGameMode() != GameMode.survival || !playerItem || !playerItemAfterBreak) return;
 
     // Check if the player is holding an item
     const itemType = toolTypes[playerItem.typeId];
@@ -30,27 +26,21 @@ export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
 
     // Check if item is a pickaxe/axe and is in the validBlockTypes list
     const blockData = validBlockTypes[itemType][blockId];
-    const playerInventory = player.getComponent(
-        "minecraft:inventory"
-    ) as EntityInventoryComponent;
-    if (!playerItem || !playerInventory.container || !itemType || !blockData)
-        return;
+    const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
+    if (!playerItem || !playerInventory.container || !itemType || !blockData) return;
 
     // Get and apply item enchantments
-    const itemEnchantments = (
-        playerItem.getComponent(
-            ItemComponentTypes.Enchantable
-        ) as ItemEnchantableComponent
-    ).getEnchantments();
+    const itemEnchantments = (playerItem.getComponent(ItemComponentTypes.Enchantable) as ItemEnchantableComponent).getEnchantments();
     if (!itemEnchantments) return;
 
+    // Get the player's effects and apply the luck fromn the effects
+    const playerEffects = PlayerDataHandler.get("effects", player) as unknown as { [key: string]: EffectDataT };
+    const playerLuck = playerEffects["luck-custom"];
     let blockCount = blockData.minAmount;
-    const playerEffects = PlayerData.get("effects", player) as { [key: string]: any };
-    let playerLuck = playerEffects["luck-custom"] || 0;
-    let totalLuck = 0 + playerLuck.strength; // Luck 1 = 1 per level, Luck 2 = 2 per level, Luck 3 = 3 per level
+    let totalLuck = playerLuck ? playerLuck.strength : 0; // Luck 1 = 1 per level, Luck 2 = 2 per level, Luck 3 = 3 per level
 
     // Get custom enchantments
-    const customEnchantments = (ItemData.get("enchantments", playerItem) as unknown as any) || {};
+    const customEnchantments = (ItemDataHandler.get("enchantments", playerItem) as unknown as EnchantmentDataT) || {};
     for (const enchantment of Object.values(customEnchantments)) {
         const anyEnchantment = enchantment as any;
         if (anyEnchantment.name == "luck1") {
@@ -97,7 +87,5 @@ export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
 
     // Kill the block drop by running a kill command
     const blockPosition = event.block.location;
-    event.dimension.runCommand(
-        `/kill @e[type=item,r=2,x=${blockPosition.x},y=${blockPosition.y},z=${blockPosition.z}]`
-    );
+    event.dimension.runCommand(`/kill @e[type=item,r=2,x=${blockPosition.x},y=${blockPosition.y},z=${blockPosition.z}]`);
 }

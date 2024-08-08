@@ -9,7 +9,7 @@ import {
 import { EnchantmentDataT } from "../types";
 import { MinecraftFormatCodes, removeFormat } from "./chatFormat";
 
-export const ItemData = {
+export const ItemDataHandler = {
 	// Gets the value of a property from the item
 	// If it's JSON, then it will automatically be parsed
 	get(key: string, item: ItemStack) {
@@ -95,7 +95,7 @@ export function removeLore(player: Player, item: ItemStack, text: string) {
 
 export function updateLore(player: Player, item: ItemStack) {
 	const longestText = "Has Custom Properties";
-	let currentEnchantments = (ItemData.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
+	let currentEnchantments = (ItemDataHandler.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
 
 	// Go through the items lore and find any enchantments and remove them
 	const lore = item.getLore();
@@ -127,19 +127,19 @@ export function updateLore(player: Player, item: ItemStack) {
 // Automatically formats the enchantment
 export function addCustomEnchantment(player: Player, item: ItemStack, enchantmentData: EnchantmentDataT) {
 	// Check if the item already has the new enchantment
-	const currentEnchantments = (ItemData.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
+	const currentEnchantments = (ItemDataHandler.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
 	if (currentEnchantments[enchantmentData.name]) return;
 
 	currentEnchantments[enchantmentData.name] = enchantmentData;
 
 	// Set the enchantments property
-	ItemData.set("enchantments", currentEnchantments, item, player);
+	ItemDataHandler.set("enchantments", currentEnchantments, item, player);
 	updateLore(player, item);
 }
 
 // Removes a custom enchantment from an item
 export function removeCustomEnchantment(player: Player, item: ItemStack, name: string) {
-	const currentEnchantments = (ItemData.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT | undefined; }) || {};
+	const currentEnchantments = (ItemDataHandler.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT | undefined; }) || {};
 	if (!currentEnchantments[name]) return;
 
 	const displayName = currentEnchantments[name].currentDisplayName;
@@ -157,8 +157,5 @@ export function removeCustomEnchantment(player: Player, item: ItemStack, name: s
 	delete currentEnchantments[name];
 
 	world.sendMessage("Removing prop 1")
-	for (const enchantment of Object.keys(currentEnchantments)) {
-		world.sendMessage("Enchantment thingy: " + enchantment);
-	}
-	ItemData.set("enchantments", currentEnchantments, item, player);
+	ItemDataHandler.set("enchantments", currentEnchantments, item, player);
 }

@@ -41,3 +41,16 @@ export type EnchantmentDataT = {
     level: number;
     [key: string]: any;
 }
+
+export type EnchantmentPurchaseT = {
+    title: string;
+    description: string;
+    name: string;
+    baseCost: number;
+    costIncrease: number;
+    effectTitle: string; // "more damage", "more drops",
+    effectType: string; // "percent", "flat"
+    effectAmount: number;
+    effectSymbol?: string;
+    maxLevel?: number;
+}

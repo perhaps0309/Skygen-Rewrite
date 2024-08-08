@@ -1,7 +1,7 @@
 import { world, Player, Vector3 } from "@minecraft/server";
 import { EffectDataT, MinecraftDynamicPropertyT, PlayerDataT } from '../types';
 
-export const PlayerData = {
+export const PlayerDataHandler = {
     // Gets the value of a property from the player
     // If it's JSON, then it will automatically be parsed
     get(key: string, player: Player) {
@@ -58,19 +58,3 @@ export const PlayerData = {
         return data;
     }
 };
-
-/*
-    Example data:
-    const newHaste = {
-        effect: "haste",
-        duration: 120,
-        strength: 3,
-        title: "Haste",
-        startTime: system.currentTick
-    }
-*/
-export function addEffect(player: Player, newEffectData: EffectDataT) {
-    const playerEffects = PlayerData.get("effects", player) as unknown as { [key: string]: MinecraftDynamicPropertyT } || {};
-    playerEffects[newEffectData.effect] = newEffectData;
-    PlayerData.set("effects", playerEffects, player);
-}
