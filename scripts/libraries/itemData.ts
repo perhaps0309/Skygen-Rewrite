@@ -93,16 +93,9 @@ export function removeLore(player: Player, item: ItemStack, text: string) {
 	playerEquipment.setEquipment(EquipmentSlot.Mainhand, item);
 }
 
-// Adds a custom enchantment to an item
-// Automatically formats the enchantment
-export function addCustomEnchantment(player: Player, item: ItemStack, enchantmentData: EnchantmentDataT) {
-	// Check if the item already has the new enchantment
-	const currentEnchantments = (ItemData.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
-	if (currentEnchantments[enchantmentData.name]) return;
-
+export function updateLore(player: Player, item: ItemStack) {
 	const longestText = "Has Custom Properties";
-	const oldDisplayName = enchantmentData.currentDisplayName;
-	currentEnchantments[enchantmentData.name] = enchantmentData;
+	let currentEnchantments = (ItemData.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
 
 	// Go through the items lore and find any enchantments and remove them
 	const lore = item.getLore();
@@ -111,7 +104,7 @@ export function addCustomEnchantment(player: Player, item: ItemStack, enchantmen
 		removeLore(player, item, currentLore);
 	}
 
-	// Add the enchantments back to the item along with the new enchantment
+	// Add the enchantments back to the item 
 	let enchantmentSpacing = longestText.length - ("Enchantments".length);
 	addLore(player, item, " ".repeat(Math.floor(enchantmentSpacing / 2) + 1) + MinecraftFormatCodes.BOLD + "Enchantments" + MinecraftFormatCodes.RESET);
 	for (const enchantment in currentEnchantments) {
@@ -128,9 +121,20 @@ export function addCustomEnchantment(player: Player, item: ItemStack, enchantmen
 		const newDisplayName = " ".repeat(Math.floor(spaces / 2 + 0.5) + 3) + displayName + " " + currentEnchantmentData.level;
 		addLore(player, item, newDisplayName);
 	}
+}
+
+// Adds a custom enchantment to an item
+// Automatically formats the enchantment
+export function addCustomEnchantment(player: Player, item: ItemStack, enchantmentData: EnchantmentDataT) {
+	// Check if the item already has the new enchantment
+	const currentEnchantments = (ItemData.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
+	if (currentEnchantments[enchantmentData.name]) return;
+
+	currentEnchantments[enchantmentData.name] = enchantmentData;
 
 	// Set the enchantments property
 	ItemData.set("enchantments", currentEnchantments, item, player);
+	updateLore(player, item);
 }
 
 // Removes a custom enchantment from an item

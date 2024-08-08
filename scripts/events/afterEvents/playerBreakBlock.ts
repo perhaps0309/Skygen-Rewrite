@@ -47,7 +47,7 @@ export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
     let blockCount = blockData.minAmount;
     const playerEffects = PlayerData.get("effects", player) as { [key: string]: any };
     let playerLuck = playerEffects["luck-custom"] || 0;
-    let totalLuck = 0 + playerLuck.level; // Luck 1 = 1 per level, Luck 2 = 2 per level, Luck 3 = 3 per level
+    let totalLuck = 0 + playerLuck.strength; // Luck 1 = 1 per level, Luck 2 = 2 per level, Luck 3 = 3 per level
 
     // Get custom enchantments
     const customEnchantments = (ItemData.get("enchantments", playerItem) as unknown as any) || {};
@@ -76,8 +76,7 @@ export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
                 if (randomValue < weightedChance) {
                     blockCount = blockData.maxAmount;
                 } else { // Go between min and max amount using luck
-                    console.warn(chance, weightedChance, totalLuck)
-                    blockCount = chance * (blockData.maxAmount - blockData.minAmount) + blockData.minAmount;
+                    blockCount = Math.min(chance * (blockData.maxAmount - blockData.minAmount) + blockData.minAmount, blockData.maxAmount);
                 }
 
                 break;
