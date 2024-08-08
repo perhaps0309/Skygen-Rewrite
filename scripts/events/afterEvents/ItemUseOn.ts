@@ -9,6 +9,8 @@ import {
     EntityLoadAfterEvent,
     SpawnEntityOptions,
     ItemUseOnBeforeEvent,
+    world,
+    Vector3, // Add this line to import the Vector3 class
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/baseData";
 import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
@@ -16,6 +18,30 @@ import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
 let genTypes: { [key: string]: string } = {
     "coal": "minecraft:coal_ore"
 }
+
+let genBlocks: { [key: string]: string } = {} // This will be used to store the block positions, and the generator type
+function tickSystem() {
+    // Run every second
+    if (system.currentTick % 1 === 0) { // 20 ticks = 1 second
+        let dimension = world.getDimension("overworld")
+        for (const blockPos in genBlocks) {
+            let blockPosS = blockPos.split(",");
+            let blockVector3: Vector3 = { x: Number(blockPosS[0]), y: Number(blockPosS[1] + 1), z: Number(blockPosS[2]) };
+
+            let block = dimension.getBlock(blockVector3);
+            if (!block) continue;
+            if (block.typeId === "minecraft:air") {
+                let generatorType = genBlocks[blockPos];
+                dimension.setBlockType(blockVector3, generatorType);
+            }
+        }
+    }
+
+    system.run(tickSystem);
+}
+
+system.run(tickSystem);
+
 export function itemUseOn(event: ItemUseOnBeforeEvent) {
     const player = event.source;
     const item = event.itemStack;
@@ -33,8 +59,8 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
 
     // Set the block to a repeating command block
 
-
     player.sendMessage(`Set a repeating command block to generate ${generatorType} at ${block.x}, ${block.y + 1}, ${block.z}`);
+    block.dimension.setBlockType(block, "minecraft:bedrock");
     event.cancel = true;
 
     // Remove the item from the player's inventory
@@ -56,4 +82,7 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
             }
         }
     })
+
+    // Add the block to the genBlocks object
+    genBlocks[`${block.x},${block.y},${block.z}`] = generatorType;
 }

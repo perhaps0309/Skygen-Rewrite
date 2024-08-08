@@ -285,10 +285,10 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 			updateLore(event.player, item);
 
 			// Give the player a coal generator chicken
-			const itemStack = new ItemStack("minecraft:egg", 1);
-			itemStack.nameTag = MinecraftColors.DARK_GRAY + "Coal" + " §rGenerator §r§fChicken";
+			const itemStack = new ItemStack("minecraft:spawn", 1);
+			itemStack.nameTag = MinecraftColors.DARK_GRAY + "Coal" + " §r§fGenerator";
 			itemStack.keepOnDeath = true;
-			itemStack.setLore([MinecraftColors.GRAY + "Right-click to spawn a coal generator chicken"]);
+			itemStack.setLore([MinecraftColors.GRAY + "Right-click to spawn a §8coal §7generator"]);
 			const playerInventory = event.player.getComponent("minecraft:inventory") as EntityInventoryComponent;
 			if (!playerInventory.container) return;
 
