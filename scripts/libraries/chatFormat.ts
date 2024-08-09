@@ -26,7 +26,7 @@ export enum MinecraftFormatCodes {
     RESET = "§r"
 }
 
-export function removeFormat(str: string) {
+export function removeFormat(str: string) { // why is this broken mason? i TRUSTED you, and you lied. this never worked. i'm so disappointed in you. i'm going to have to go to therapy now. i hope you're happy.
     let newStr = "";
     for (const color in Object.values(MinecraftColors)) {
         newStr = str.replaceAll(color, "");

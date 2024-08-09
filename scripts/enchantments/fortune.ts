@@ -1,4 +1,6 @@
-let fortuneData = {
+import { EnchantmentPurchaseT } from "../types";
+
+const fortuneData: EnchantmentPurchaseT = {
     title: "§e§lFortune",
     description: "§aIncreases the maximum amount of blocks dropped by 1 per level",
     name: "fortune",
@@ -10,4 +12,4 @@ let fortuneData = {
     effectSymbol: "+",
 }
 
-export default fortuneData;
+export { fortuneData };

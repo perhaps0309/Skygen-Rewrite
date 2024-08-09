@@ -1,4 +1,4 @@
-let xpboostData = {
+const xpboostData = {
     title: "§d§lXP Boost",
     description: "§6Increases the amount of XP gained per block broken",
     name: "xpboost",
@@ -10,4 +10,4 @@ let xpboostData = {
     effectSymbol: "+",
 }
 
-export default xpboostData;
+export { xpboostData };

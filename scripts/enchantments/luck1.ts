@@ -1,4 +1,4 @@
-let luck1Data = {
+const luck1Data = {
     title: "§b§lLuck I",
     description: "§6Increases the chance of getting rare drops",
     name: "luck1",
@@ -10,4 +10,4 @@ let luck1Data = {
     effectSymbol: "+",
 }
 
-export default luck1Data;
+export { luck1Data };

@@ -60,15 +60,17 @@ export function handleGeneratorCreation(event: ItemUseOnBeforeEvent) {
 
     const itemLore = item.getLore()
     if (!itemLore[0] || !itemLore[0].includes("generator")) return;
-    let generatorType: string = removeFormat(itemLore[0].split(" generator")[0].split("a ")[1].split("generator")[0].toLowerCase());
-    console.warn(generatorType);
+
+    let generatorOp = itemLore[0].split(" generator")[0].split("a ")[1].split("generator")[0]
+    let generatorType: string = removeFormat(generatorOp)
+    console.warn("genType", generatorType, generatorOp);
 
     // Set the block to a repeating command block
 
+    event.cancel = true;
     system.run(function () {
         player.sendMessage(`Set a repeating command block to generate ${generatorType} at ${block.x}, ${block.y + 1}, ${block.z}`);
         block.dimension.setBlockType(block, "minecraft:bedrock");
-        event.cancel = true;
 
         // Remove the item from the player's inventory
         const playerInventory = event.source.getComponent("minecraft:inventory") as EntityInventoryComponent;
@@ -99,8 +101,8 @@ export function handleAdminStick(event: ItemUseOnBeforeEvent) {
     const player = event.source;
     const item = event.itemStack;
     const block = event.block;
-    if (!item || !event.isFirstEvent) return;
-    if (item.typeId != "minecraft:stick") return; 
+    if (!item) return;
+    if (item.typeId != "minecraft:stick") return;
 
     let adminSelections = PlayerDataHandler.get("AdminSelections", player) as unknown as AdminSelectionT;
     if (!adminSelections) {
@@ -111,5 +113,5 @@ export function handleAdminStick(event: ItemUseOnBeforeEvent) {
         PlayerDataHandler.set("AdminSelections", adminSelections, player);
     }
 
-      
+
 }
