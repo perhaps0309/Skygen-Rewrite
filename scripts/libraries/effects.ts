@@ -28,14 +28,14 @@ export function applyEffectProperties(playerData: PlayerDataT) {
     }
 
     // Get the effect data for the effect currently being displayed then display it
-    const effectData = playerData.effects[effectKeys[playerData.effectIndex]];
+    const effectData = playerData.effects[effectKeys[playerData.effectIndex]] as EffectDataT;
     if (effectData) {
         playerData.player.dimension.runCommand(`/title "${playerName}" actionbar ${effectData.title} - ${effectData.duration - (Math.round((system.currentTick - effectData.startTime) / 20))}s`);
     }
 
     for (const effect of effectKeys) {
         // Get effect data and setup the effect's options using EntityEffectOptions
-        const effectData: EffectDataT = playerData.effects[effect];
+        const effectData = playerData.effects[effect] as EffectDataT;
 
         // Check if expired
         if (system.currentTick - effectData.startTime > effectData.duration * 20) {

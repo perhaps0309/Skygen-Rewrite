@@ -15,6 +15,9 @@ import {
 import { validBlockTypes, toolTypes } from "../../libraries/baseData";
 import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
 import { removeFormat } from "../../libraries/chatFormat";
+import { WorldDataHandler } from "../../libraries/worldData";
+import { PlayerDataHandler } from "../../libraries/playerData";
+import { AdminSelectionT } from "../../types";
 
 let genTypes: { [key: string]: string } = {
     "coal": "minecraft:coal_ore"
@@ -44,7 +47,7 @@ function tickSystem() {
 
 system.run(tickSystem);
 
-export function itemUseOn(event: ItemUseOnBeforeEvent) {
+export function handleGeneratorCreation(event: ItemUseOnBeforeEvent) {
     const player = event.source;
     const item = event.itemStack;
     const block = event.block;
@@ -52,7 +55,7 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
     // Check if player is a player, and is holding stone
     if (!item) return;
 
-    console.warn(!player, !item, item.typeId !== "minecraft:stone", block.typeId !== "minecraft:dirt")
+    // console.warn(!player, !item, item.typeId !== "minecraft:stone", block.typeId !== "minecraft:dirt")
     if (!player || !item || item.typeId !== "minecraft:stone" || block.typeId !== "minecraft:dirt") return;
 
     const itemLore = item.getLore()
@@ -90,4 +93,23 @@ export function itemUseOn(event: ItemUseOnBeforeEvent) {
         // Add the block to the genBlocks object
         genBlocks[`${block.x},${block.y},${block.z}`] = generatorType;
     })
+}
+
+export function handleAdminStick(event: ItemUseOnBeforeEvent) {
+    const player = event.source;
+    const item = event.itemStack;
+    const block = event.block;
+    if (!item || !event.isFirstEvent) return;
+    if (item.typeId != "minecraft:stick") return; 
+
+    let adminSelections = PlayerDataHandler.get("AdminSelections", player) as unknown as AdminSelectionT;
+    if (!adminSelections) {
+        adminSelections = {
+            firstSelection: undefined,
+            secondSelection: undefined
+        }
+        PlayerDataHandler.set("AdminSelections", adminSelections, player);
+    }
+
+      
 }

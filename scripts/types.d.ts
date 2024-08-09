@@ -1,4 +1,4 @@
-import { Player } from "@minecraft/server";
+import { Player, Vector3 } from "@minecraft/server";
 
 export type MinecraftDynamicPropertyT = boolean | number | string | Vector3 | {} | undefined;
 
@@ -31,7 +31,7 @@ export type PlayerDataT = {
     effectIndex: number;
     lastEffectTime: number;
     player: Player;
-    ranks: { [key: string]: MinecraftDynamicPropertyT };
+    ranks: { [key: string]: number };
     [key: string]: any;
 }
 
@@ -55,8 +55,12 @@ export type EnchantmentPurchaseT = {
     maxLevel?: number;
 }
 
-export type CommandT = {
-    name: string,
-    requiredRank: number,
-    callback: (...args: any[]) => any;
+export type PlotT = {
+    location: Vector3; // Set on the corner where the fill command takes place
+    permissions: {[playerName: string]: number};
+}
+
+export type AdminSelectionT = {
+    firstSelection: Vector3 | undefined;
+    secondSelection: Vector3 | undefined;
 }
