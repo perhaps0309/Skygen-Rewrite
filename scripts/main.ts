@@ -31,18 +31,12 @@ import { abbreviateMoney, getPlayerMoney, setPlayerMoney } from "./libraries/mon
 import { addPerm, invalidPermissions, plot, punish, removePerm, resetPlots, setPlotArea, unpunish } from "./commands";
 import { checkIfPlot } from "./events/beforeEvents/playerBreakBlock";
 
-// Register default player data
-const defaultData = {
-	dropMultiplier: 1,
-	xpMultiplier: 1,
-	effects: {}, // haste = {effect: string, duration: number, strength: number, title: string, startTime: number}
-};
-
 const rankColors: { [key: string]: string } = {
 	"Admin": MinecraftColors.RED
 }
 const commandPrefix = "!";
 
+world.afterEvents.playerJoin.subscribe(handlePlayerJoin);
 world.beforeEvents.chatSend.subscribe((event) => {
 	const player = event.sender;
 	const message = event.message;
@@ -128,6 +122,7 @@ import { fortuneData } from "./enchantments/fortune";
 import { luck1Data } from "./enchantments/luck1";
 import { luck2Data } from "./enchantments/luck2";
 import { xpboostData } from "./enchantments/xpboost";
+import { handlePlayerJoin } from "./events/afterEvents/playerJoin";
 
 const enchantments: { [key: string]: EnchantmentPurchaseT } = { fortuneData, luck1Data, luck2Data, xpboostData };
 
@@ -255,17 +250,6 @@ world.beforeEvents.playerInteractWithEntity.subscribe((event) => {
 		system.run(function () {
 			openEnchantmentMenu(player);
 		});
-	}
-});
-
-world.afterEvents.playerJoin.subscribe((event) => {
-	const playerName = event.playerName;
-	const allPlayers = world.getAllPlayers();
-
-	for (const currentPlayer of allPlayers) {
-		if (currentPlayer.name === playerName) {
-			PlayerDataHandler.set(playerName, defaultData, currentPlayer);
-		}
 	}
 });
 

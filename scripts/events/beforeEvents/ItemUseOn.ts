@@ -62,7 +62,7 @@ export function handleGeneratorCreation(event: ItemUseOnBeforeEvent) {
     if (!itemLore[0] || !itemLore[0].includes("generator")) return;
 
     let generatorOp = itemLore[0].split(" generator")[0].split("a ")[1].split("generator")[0]
-    let generatorType: string = removeFormat(generatorOp)
+    let generatorType: string = removeFormat(generatorOp);
     console.warn("genType", generatorType, generatorOp);
 
     // Set the block to a repeating command block
