@@ -8,7 +8,7 @@ export function checkIfPlot(event: PlayerBreakBlockBeforeEvent) {
     const plots = WorldDataHandler.get("plots", world) as unknown as { [key: string]: PlotT };
     const plotPlayerName = getPlotFromPosition(event.block.location);
     if (!plotPlayerName || plotPlayerName == player.name) return false;
-    
+
     const plot = plots[plotPlayerName];
     if (!plot.permissions) {
         plots[plotPlayerName].permissions = {};

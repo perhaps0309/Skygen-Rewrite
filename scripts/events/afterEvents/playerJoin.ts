@@ -1,4 +1,4 @@
-import { world, PlayerJoinAfterEvent, Player } from "@minecraft/server";
+import { world, PlayerJoinAfterEvent, Player, PlayerSpawnAfterEvent } from "@minecraft/server";
 import { PlayerDataHandler } from "../../libraries/playerData";
 import { MinecraftColors, MinecraftFormatCodes } from "../../libraries/chatFormat";
 
@@ -10,27 +10,14 @@ const defaultData = {
     hasJoinedBefore: false
 };
 
-export function handlePlayerJoin(event: PlayerJoinAfterEvent) {
-    const playerName = event.playerName;
-    const allPlayers = world.getAllPlayers();
+export function handlePlayerJoin(event: PlayerSpawnAfterEvent) {
+    const player = event.player;
+    const playerName = player.name;
 
-    let playerObject = null;
-    for (const currentPlayer of allPlayers) {
-        if (currentPlayer.name === playerName && PlayerDataHandler.has("dropMultiplier", currentPlayer) === false) {
-            PlayerDataHandler.set(playerName, defaultData, currentPlayer);
-            playerObject = currentPlayer;
-            break;
-        } else if (currentPlayer.name === playerName) {
-            playerObject = currentPlayer;
-        }
-    }
-
-    if (playerObject === null) return;
-
-    if (!PlayerDataHandler.get("hasJoinedBefore", playerObject)) {
-        world.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "BeyondSkygen ►" + MinecraftFormatCodes.RESET + MinecraftColors.AQUA + playerName + MinecraftColors.WHITE + " has joined the server for the first time!");
-        PlayerDataHandler.set("hasJoinedBefore", true, playerObject);
+    if (!PlayerDataHandler.get("hasJoinedBefore", player)) {
+        world.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "BouncySkygen ► " + MinecraftFormatCodes.RESET + MinecraftColors.AQUA + playerName + MinecraftColors.WHITE + " has joined the server for the first time!\n");
+        PlayerDataHandler.set("hasJoinedBefore", true, player);
     } else {
-        world.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "BeyondSkygen ►" + MinecraftFormatCodes.RESET + MinecraftColors.AQUA + playerName + MinecraftColors.WHITE + " has joined the server again!");
+        world.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "BouncySkygen ► " + MinecraftFormatCodes.RESET + MinecraftColors.AQUA + playerName + MinecraftColors.WHITE + " has joined the server again!\n");
     }
 }

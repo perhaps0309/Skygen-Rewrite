@@ -36,7 +36,7 @@ function tickSystem() {
             if (!block) continue;
             if (block.typeId === "minecraft:air") {
                 let generatorType = genBlocks[blockPos];
-                console.warn(generatorType)
+                console.warn('test', generatorType, blockVector3)
                 dimension.setBlockType(blockVector3, generatorType);
             }
         }
@@ -61,7 +61,7 @@ export function handleGeneratorCreation(event: ItemUseOnBeforeEvent) {
     const itemLore = item.getLore()
     if (!itemLore[0] || !itemLore[0].includes("generator")) return;
 
-    let generatorOp = itemLore[0].split(" generator")[0].split("a ")[1].split("generator")[0]
+    let generatorOp = itemLore[0].split(" generator")[0].split("a ")[1].split("generator")[0].replaceAll(" ", "");
     let generatorType: string = removeFormat(generatorOp);
     console.warn("genType", generatorType, generatorOp);
 
@@ -93,7 +93,7 @@ export function handleGeneratorCreation(event: ItemUseOnBeforeEvent) {
         })
 
         // Add the block to the genBlocks object
-        genBlocks[`${block.x},${block.y},${block.z}`] = generatorType;
+        genBlocks[`${block.x},${block.y},${block.z}`] = genTypes[generatorType];
     })
 }
 
@@ -112,6 +112,4 @@ export function handleAdminStick(event: ItemUseOnBeforeEvent) {
         }
         PlayerDataHandler.set("AdminSelections", adminSelections, player);
     }
-
-
 }
