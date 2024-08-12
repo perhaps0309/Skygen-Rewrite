@@ -55,3 +55,7 @@ export function chatWarn(player: Player, message: string) {
 export function chatError(player: Player, message: string) {
     player.sendMessage(MinecraftColors.RED + "ERROR << " + message);
 }
+
+export function chatServer(player: Player, message: string) {
+    player.sendMessage(MinecraftFormatCodes.BOLD + MinecraftColors.GREEN + "Bouncy" + MinecraftColors.AQUA + "MC << " + MinecraftFormatCodes.RESET + message);
+}

@@ -1,11 +1,53 @@
 import { world, Vector3, ChatSendBeforeEvent, system, Player, EntityInventoryComponent, ItemLockMode } from '@minecraft/server';
-import { chatError, chatSuccess, MinecraftColors } from './libraries/chatFormat';
+import { chatError, chatServer, chatSuccess, MinecraftColors, MinecraftFormatCodes } from './libraries/chatFormat';
 import { PlotT } from './types';
 import { Vector3Builder } from '@minecraft/math';
 import { WorldDataHandler } from './libraries/worldData';
+import { PlayerDataHandler } from './libraries/playerData';
+import { createPlot, createPlots, destroyPlots } from './libraries/plots';
 
 export function invalidPermissions(event: ChatSendBeforeEvent) {
     return chatError(event.sender, "You do not have permissions to run this command.");
+}
+
+// !help 
+
+export function help(event: ChatSendBeforeEvent, args: string[]) {
+    const player = event.sender;
+    const commands = [
+        "§ehelp - §aDisplays this help menu",
+        "§ereport - §aOpens the report menu",
+        "§eplot - §aCreates a plot for the player",
+        "§eaddperm §d<player> <build:destroy> §a- Allows a player permissions on your plot",
+        "§eaddrestrictedperm §d<player> <build:destroy> §a- Allows a player permissions on your plot while you are online",
+        "§eremoveperm §d<player> <build:destroy> §a- Removes a player's permissions on your plot"
+    ];
+
+    const adminCommands = [
+        "§elockinv §d<player> <duration> §e- §aLocks a player's inventory",
+        "§eunlockinv §d<player> §e- §aUnlocks a player's inventory",
+        "§eresetPlots - §aResets all plots",
+        "§esetplotarea - §aSets the world plot area",
+    ]
+
+    chatServer(player, "§eGame Commands");
+    commands.forEach(command => player.sendMessage(command));
+    player.sendMessage("\n");
+
+    // Check if admin
+    chatServer(player, "§4Admin Commands")
+    adminCommands.forEach(command => player.sendMessage(command));
+    player.sendMessage("\n");
+}
+
+// !report
+
+export function report(event: ChatSendBeforeEvent, args: string[]) {
+    const player = event.sender;
+    const targetPlayerName = args[0];
+    if (!targetPlayerName) {
+        return chatError(player, "You must provide the username who you want to report.");
+    }
 }
 
 // !punish
@@ -73,6 +115,20 @@ export function unpunish(event: ChatSendBeforeEvent, args: string[]) {
             slot.lockMode = ItemLockMode.none;
         }
     }
+}
+
+// !createplot
+
+export function createPlotChat(event: ChatSendBeforeEvent, args: string[]) {
+    const player = event.sender;
+    const playerPosition = player.location;
+    createPlots(playerPosition, world.getDimension("overworld"));
+}
+
+export function destroyPlotChat(event: ChatSendBeforeEvent, args: string[]) {
+    const player = event.sender;
+    const playerPosition = player.location;
+    destroyPlots(playerPosition, world.getDimension("overworld"));
 }
 
 // !setplotarea

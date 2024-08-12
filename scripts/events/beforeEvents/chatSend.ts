@@ -1,7 +1,7 @@
 import { ChatSendBeforeEvent, system, world } from "@minecraft/server";
 import { PlayerDataHandler } from "../../libraries/playerData";
 import { MinecraftColors } from "../../libraries/chatFormat";
-import { addPerm, invalidPermissions, plot, punish, removePerm, resetPlots, setPlotArea, unpunish } from "../../commands";
+import { addPerm, createPlotChat, destroyPlotChat, help, invalidPermissions, plot, punish, removePerm, report, resetPlots, setPlotArea, unpunish } from "../../commands";
 import { getHighestRank } from '../../libraries/ranks';
 
 const rankColors: { [key: string]: string } = {
@@ -69,6 +69,26 @@ export function chatSend(event: ChatSendBeforeEvent) {
             case "resetplots": {
                 if (highestPriority < 1) return invalidPermissions(event);
                 resetPlots(event, args);
+                break;
+            }
+
+            case "help": {
+                help(event, args);
+                break;
+            }
+
+            case "report": {
+                report(event, args);
+                break;
+            }
+
+            case "createplot": {
+                createPlotChat(event, args);
+                break;
+            }
+
+            case "destroyplot": {
+                destroyPlotChat(event, args);
                 break;
             }
 
