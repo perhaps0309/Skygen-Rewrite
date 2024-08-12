@@ -2,6 +2,7 @@ import { ChatSendBeforeEvent, system, world } from "@minecraft/server";
 import { PlayerDataHandler } from "../../libraries/playerData";
 import { MinecraftColors } from "../../libraries/chatFormat";
 import { addPerm, invalidPermissions, plot, punish, removePerm, resetPlots, setPlotArea, unpunish } from "../../commands";
+import { getHighestRank } from '../../libraries/ranks';
 
 const rankColors: { [key: string]: string } = {
     "Admin": MinecraftColors.RED
@@ -19,16 +20,7 @@ export function chatSend(event: ChatSendBeforeEvent) {
         playerRanks["Admin"] = 1;
         PlayerDataHandler.set("ranks", playerRanks, player);
     }
-
-    let playerRank = "";
-    let highestPriority = 0;
-    for (const rank in playerRanks) {
-        const rankPriority = playerRanks[rank];
-        if (rankPriority > highestPriority) {
-            highestPriority = rankPriority;
-            playerRank = rank;
-        }
-    }
+    const { playerRank, highestPriority } = getHighestRank(player);
 
     event.cancel = true;
     if (!message.startsWith(commandPrefix)) {

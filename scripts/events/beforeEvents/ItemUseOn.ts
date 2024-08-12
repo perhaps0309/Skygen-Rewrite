@@ -18,6 +18,7 @@ import { removeFormat } from "../../libraries/chatFormat";
 import { WorldDataHandler } from "../../libraries/worldData";
 import { PlayerDataHandler } from "../../libraries/playerData";
 import { AdminSelectionT } from "../../types";
+import { handleAdminMenu } from "../../libraries/adminMenuHandler";
 
 let genTypes: { [key: string]: string } = {
     "coal": "minecraft:coal_ore"
@@ -103,6 +104,10 @@ export function handleAdminStick(event: ItemUseOnBeforeEvent) {
     const block = event.block;
     if (!item) return;
     if (item.typeId != "minecraft:stick") return;
+
+    system.run(() => {
+        handleAdminMenu(player);
+    });
 
     let adminSelections = PlayerDataHandler.get("AdminSelections", player) as unknown as AdminSelectionT;
     if (!adminSelections) {

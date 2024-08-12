@@ -155,7 +155,5 @@ export function removeCustomEnchantment(player: Player, item: ItemStack, name: s
 
     // Remove enchantment from custom properties
     delete currentEnchantments[name];
-
-    world.sendMessage("Removing prop 1")
     ItemDataHandler.set("enchantments", currentEnchantments, item, player);
 }

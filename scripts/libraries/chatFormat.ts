@@ -1,3 +1,5 @@
+import { Player } from "@minecraft/server";
+
 export enum MinecraftColors {
     BLACK = "§0",
     DARK_BLUE = "§1",
@@ -40,4 +42,16 @@ export function removeFormat(str: string): string {
     }
 
     return newStr;
+}
+
+export function chatSuccess(player: Player, message: string) {
+    player.sendMessage(MinecraftColors.GREEN + "SUCCESS << " + message);
+}
+
+export function chatWarn(player: Player, message: string) {
+    player.sendMessage(MinecraftColors.YELLOW + "WARNING << " + message);
+}
+
+export function chatError(player: Player, message: string) {
+    player.sendMessage(MinecraftColors.RED + "ERROR << " + message);
 }

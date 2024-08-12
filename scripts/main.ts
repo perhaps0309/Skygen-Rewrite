@@ -7,9 +7,11 @@ import { PlayerDataT } from "./types";
 import { addEffect, applyEffectProperties, rotateEffectTitles } from "./libraries/effects";
 import { setPlayerMoney } from "./libraries/money";
 
-world.afterEvents.playerSpawn.subscribe(playerSpawn);
-world.afterEvents.playerSpawn.subscribe(handlePlayerJoin);
 world.beforeEvents.chatSend.subscribe(chatSend);
+world.afterEvents.playerSpawn.subscribe((event) => {
+	handlePlayerJoin(event);
+	playerSpawn(event);
+});
 world.beforeEvents.itemUseOn.subscribe((event) => {
 	handleGeneratorCreation(event);
 	handleAdminStick(event);
@@ -23,6 +25,11 @@ import { handleAdminStick, handleGeneratorCreation } from "./events/beforeEvents
 import { openEnchantmentMenu } from "./libraries/enchantmentHandler";
 
 world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
+	// Check if the block the player is interacting with is on someone else's plot.
+	if (checkIfPlot(event)) {
+		return event.cancel = true;
+	}
+
 	// Check if block is an enchantment table
 	if (event.block.type.id !== "minecraft:enchanting_table") return;
 

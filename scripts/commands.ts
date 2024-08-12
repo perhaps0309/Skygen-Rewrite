@@ -1,11 +1,11 @@
 import { world, Vector3, ChatSendBeforeEvent, system, Player, EntityInventoryComponent, ItemLockMode } from '@minecraft/server';
-import { MinecraftColors } from "./libraries/chatFormat";
+import { chatError, chatSuccess, MinecraftColors } from './libraries/chatFormat';
 import { PlotT } from './types';
 import { Vector3Builder } from '@minecraft/math';
 import { WorldDataHandler } from './libraries/worldData';
 
 export function invalidPermissions(event: ChatSendBeforeEvent) {
-    event.sender.sendMessage(MinecraftColors.RED + "You do not have permissions to run this command.");
+    return chatError(event.sender, "You do not have permissions to run this command.");
 }
 
 // !punish
@@ -13,7 +13,7 @@ export function punish(event: ChatSendBeforeEvent, args: string[]) {
     const player = event.sender;
     const targetPlayerName = args[0];
     if (!targetPlayerName) {
-        return player.sendMessage(MinecraftColors.RED + "You must provide the username who you want to grant permissions.");
+        return chatError(player, "You must provide the username who you want to grant permissions.");
     }
 
     const allPlayers = world.getAllPlayers();
@@ -26,7 +26,7 @@ export function punish(event: ChatSendBeforeEvent, args: string[]) {
     }
 
     if (!targetPlayer) {
-        return player.sendMessage(MinecraftColors.RED + "No player by that username found.");
+        return chatError(player, "No player by that username found.");
     }
 
     const playerInventory = targetPlayer.getComponent("minecraft:inventory") as EntityInventoryComponent;
@@ -46,7 +46,7 @@ export function unpunish(event: ChatSendBeforeEvent, args: string[]) {
     const player = event.sender;
     const targetPlayerName = args[0];
     if (!targetPlayerName) {
-        return player.sendMessage(MinecraftColors.RED + "You must provide the username who you want to grant permissions.");
+        return chatError(player, "You must provide the username who you want to unpunish.");
     }
 
     const allPlayers = world.getAllPlayers();
@@ -60,7 +60,7 @@ export function unpunish(event: ChatSendBeforeEvent, args: string[]) {
     }
 
     if (!targetPlayer) {
-        return player.sendMessage(MinecraftColors.RED + "No player by that username found.");
+        return chatError(player, "No player by that username found.");
     }
 
     const playerInventory = targetPlayer.getComponent("minecraft:inventory") as EntityInventoryComponent;
@@ -80,7 +80,7 @@ export function setPlotArea(event: ChatSendBeforeEvent, args: string[]) {
     const player = event.sender;
     const playerPosition = player.location;
     world.setDynamicProperty("plotArea", playerPosition)
-    player.sendMessage(MinecraftColors.GREEN + "Successfully set world plot location.");
+    chatSuccess(player, "Successfully set world plot location.");
 }
 
 export function getPlotFromPosition(position: Vector3) {
@@ -113,7 +113,7 @@ export function plot(event: ChatSendBeforeEvent, args: string[]) {
     const basePlotLocation = world.getDynamicProperty("plotArea") as Vector3;
     let plots = WorldDataHandler.get("plots", world) as unknown as { [key: string]: PlotT };
     if (!basePlotLocation) {
-        return player.sendMessage(MinecraftColors.RED + "A world plot location has not been set yet.");
+        return chatError(player, "A world plot location has not been set yet.")
     }
     if (!plots) {
         plots = {
@@ -146,7 +146,7 @@ export function plot(event: ChatSendBeforeEvent, args: string[]) {
             const plotLocation = plot.location;
 
             for (const direction of directions) {
-                console.warn(direction);
+                console.warn(`Current direction: ${direction}`);
                 const potentialPlotLocation = new Vector3Builder(
                     plotLocation.x + direction.x,
                     plotLocation.y,
@@ -167,12 +167,22 @@ export function plot(event: ChatSendBeforeEvent, args: string[]) {
     }
 
     if (!newPlotLocation) {
-        return player.sendMessage(MinecraftColors.RED + "Unable to find plot location");
+        return chatError(player, "Unable to find a plot location.")
     }
-    player.teleport(newPlotLocation);
-    world.getDimension("overworld").runCommand(`/fill ${newPlotLocation.x - 1} ${newPlotLocation.y} ${newPlotLocation.z - 1} ${newPlotLocation.x + 51} ${newPlotLocation.y} ${newPlotLocation.z + 51} minecraft:black_concrete`);
-    world.getDimension("overworld").runCommand(`/fill ${newPlotLocation.x} ${newPlotLocation.y} ${newPlotLocation.z} ${newPlotLocation.x + 50} ${newPlotLocation.y} ${newPlotLocation.z + 50} minecraft:grass_block`);
-    player.teleport(new Vector3Builder(newPlotLocation.x, newPlotLocation.y + 5, newPlotLocation.z));
+
+    system.run(function plotTick() {
+        let successCount = 0;
+        player.teleport(newPlotLocation);
+        successCount += world.getDimension("overworld").runCommand(`/fill ${newPlotLocation.x - 1} ${newPlotLocation.y} ${newPlotLocation.z - 1} ${newPlotLocation.x + 51} ${newPlotLocation.y} ${newPlotLocation.z + 51} minecraft:black_concrete`).successCount;
+        successCount += world.getDimension("overworld").runCommand(`/fill ${newPlotLocation.x} ${newPlotLocation.y} ${newPlotLocation.z} ${newPlotLocation.x + 50} ${newPlotLocation.y} ${newPlotLocation.z + 50} minecraft:grass_block`).successCount;
+
+        if (successCount < 2) {
+            system.run(plotTick);
+        } else {
+            player.teleport(new Vector3Builder(newPlotLocation.x, newPlotLocation.y + 5, newPlotLocation.z));
+        }
+    });
+
     plots = {
         [player.name + Math.random()]: {
             location: newPlotLocation,
@@ -180,6 +190,7 @@ export function plot(event: ChatSendBeforeEvent, args: string[]) {
         }
     }
     world.setDynamicProperty("plots", JSON.stringify(plots));
+    chatSuccess(player, "Successfully created plot");
 }
 
 // !resetPlots
@@ -193,8 +204,12 @@ export function resetPlots(event: ChatSendBeforeEvent, args: string[]) {
         delete plots[plotPlayerName];
     }
 
+    for (const plotPlayerName in plots) {
+        console.warn(plotPlayerName);
+    }
+
     world.setDynamicProperty("plots", JSON.stringify(plots));
-    event.sender.sendMessage(MinecraftColors.GREEN + "Successfully reset plots");
+    chatSuccess(event.sender, "Successfully reset plots");
 }
 
 // !grantperm
@@ -207,20 +222,20 @@ export function addPerm(event: ChatSendBeforeEvent, args: string[]) {
 
     const targetPlayerName = args[0];
     if (!targetPlayerName) {
-        return player.sendMessage(MinecraftColors.RED + "You must provide the username who you want to punish.");
+        return chatError(player, "You must provide the username who you want to give perms.")
     }
 
     if (!plots[player.name]) {
-        return player.sendMessage(MinecraftColors.RED + "You don't have a plot.");
+        return chatError(player, "You don't have a plot.")
     }
 
     if (plots[player.name].permissions[targetPlayerName] == 1) {
-        return player.sendMessage(MinecraftColors.RED + `${targetPlayerName} already has permissions on your plot.`)
+        return chatError(player, `${targetPlayerName} already has permissions on your plot.`)
     }
 
     plots[player.name].permissions[targetPlayerName] = 1;
     WorldDataHandler.set("plots", plot, world);
-    player.sendMessage(MinecraftColors.GREEN + `Successfully gave plot permissions to ${targetPlayerName}.`)
+    chatSuccess(player, `Successfully gave plot permissions to ${targetPlayerName}.`)
 }
 
 // !removeperm
@@ -233,18 +248,18 @@ export function removePerm(event: ChatSendBeforeEvent, args: string[]) {
 
     const targetPlayer = args[0];
     if (!targetPlayer) {
-        return player.sendMessage(MinecraftColors.RED + "You must provide the username who you want to unpunish.");
+        return chatError(player, "You must provide the username who you want to remove perms.");
     }
 
     if (!plots[player.name]) {
-        return player.sendMessage(MinecraftColors.RED + "You don't have a plot.");
+        return chatError(player, "You don't have a plot.");
     }
 
     if (!plots[player.name].permissions[targetPlayer] || plots[player.name].permissions[targetPlayer] == 0) {
-        return player.sendMessage(MinecraftColors.RED + `${targetPlayer} does not have permissions on your plot.`)
+        return chatError(player, `${targetPlayer} does not have permissions on your plot.`)
     }
 
     plots[player.name].permissions[targetPlayer] = 0;
     WorldDataHandler.set("plots", plot, world);
-    player.sendMessage(MinecraftColors.GREEN + `Successfully removed plot permissions from ${targetPlayer}.`)
+    chatSuccess(player, `Successfully removed plot permissions from ${targetPlayer}.`)
 }

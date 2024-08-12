@@ -37,7 +37,7 @@ let specialTypes: { [key: string]: MinecraftColors } = {
     "chainmail": MinecraftColors.WHITE,
 }
 
-export function handleMenu(player: Player, playerItem: ItemStack): void {
+export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): void {
     let itemType = playerItem.typeId
     let itemMaterial = itemType.split(":")[1].split("_")[0]
     let itemColor = specialTypes[itemMaterial] || MinecraftColors.WHITE
@@ -86,14 +86,13 @@ export function handleMenu(player: Player, playerItem: ItemStack): void {
             .title(`${enchantmentTitle} - §a[${abbreviateMoney(playerMoney)} Money]`)
             .body(enchantmentBody.join(""))
 
-
         modalForm.button("§2§lUpgrade Level +1");
         modalForm.button("§8§lGo Back");
 
         // @ts-ignore
         modalForm.show(player).then(modalResponse => {
             if (modalResponse.canceled) return;
-            let buttonResponse = modalResponse.selection;
+            const buttonResponse = modalResponse.selection;
 
             if (buttonResponse === 1) {
                 openEnchantmentMenu(player);
@@ -120,7 +119,7 @@ export function openEnchantmentMenu(player: Player): void {
     const playerEquipment = player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
     let playerItem: ItemStack = playerEquipment.getEquipment(EquipmentSlot.Mainhand)!;
     if (!playerItem) {
-        let storedItems = [];
+        const storedItems: ItemStack[] = [];
         const form = new ActionFormData()
             .title("Enchantment Menu - No Tool Equipped")
             .body("Please select a tool or armor piece to enchant");
@@ -177,9 +176,9 @@ export function openEnchantmentMenu(player: Player): void {
             playerItem = storedItems[selectedSlot];
 
 
-            handleMenu(player, playerItem);
+            handleEnchantmentMenu(player, playerItem);
         });
     } else {
-        handleMenu(player, playerItem);
+        handleEnchantmentMenu(player, playerItem);
     }
 }
