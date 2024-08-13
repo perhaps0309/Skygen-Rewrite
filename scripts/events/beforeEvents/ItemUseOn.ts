@@ -10,7 +10,8 @@ import {
     SpawnEntityOptions,
     ItemUseOnBeforeEvent,
     world,
-    Vector3, // Add this line to import the Vector3 class
+    Vector3,
+    ItemUseBeforeEvent, // Add this line to import the Vector3 class
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/baseData";
 import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
@@ -98,10 +99,9 @@ export function handleGeneratorCreation(event: ItemUseOnBeforeEvent) {
     })
 }
 
-export function handleAdminStick(event: ItemUseOnBeforeEvent) {
+export function handleAdminStick(event: ItemUseBeforeEvent) {
     const player = event.source;
     const item = event.itemStack;
-    const block = event.block;
     if (!item) return;
     if (item.typeId != "minecraft:stick") return;
 

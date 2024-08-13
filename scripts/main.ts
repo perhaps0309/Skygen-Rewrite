@@ -8,14 +8,15 @@ import { addEffect, applyEffectProperties, rotateEffectTitles } from "./librarie
 import { setPlayerMoney } from "./libraries/money";
 
 world.beforeEvents.chatSend.subscribe(chatSend);
+world.beforeEvents.itemUseOn.subscribe(handleGeneratorCreation);
 world.afterEvents.playerSpawn.subscribe((event) => {
 	handlePlayerJoin(event);
 	playerSpawn(event);
 });
-world.beforeEvents.itemUseOn.subscribe((event) => {
-	handleGeneratorCreation(event);
+world.beforeEvents.itemUse.subscribe((event) => {
+	// @TODO: Handle compass menu aswell
 	handleAdminStick(event);
-})
+});
 
 import { handlePlayerJoin } from "./events/afterEvents/playerJoin";
 import { chatSend } from "./events/beforeEvents/chatSend";
@@ -29,21 +30,22 @@ world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
 	if (checkIfPlot(event)) {
 		return event.cancel = true;
 	}
-
-	// Check if block is an enchantment table
-	if (event.block.type.id !== "minecraft:enchanting_table") return;
-
-	const player = event.player;
-	system.run(() => {
-		openEnchantmentMenu(player)
-	});
-
-	event.cancel = true;
+	
+	// If the block is an enchanting table, then open the custom enchantment menu
+	if (event.block.typeId == "minecraft:enchanting_table") {
+		const player = event.player;
+		system.run(() => {
+			openEnchantmentMenu(player)
+		});
+	
+		event.cancel = true;
+	}
 });
 
 // Subscribe to player interactions
 
 world.beforeEvents.playerBreakBlock.subscribe((event) => {
+	// Check if the block broken is on someone else's plot.
 	if (checkIfPlot(event)) {
 		return event.cancel = true;
 	}
@@ -183,14 +185,19 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 });
 
 // Tick System
-
+// Runs code every so many ticks.
 function tickSystem() {
 	// Run every second
 	if (system.currentTick % 20 === 0) {
 		// Get all players, and check if they have effects
+		// If the player is banned, then kick them from the world.
 		const allPlayerData = PlayerDataHandler.getAll();
 		for (const playerName in allPlayerData) {
 			const playerData: PlayerDataT = allPlayerData[playerName];
+			if (playerData.isBanned) {
+				world.getDimension("overworld").runCommand(`/kick ${playerData.player.name} You're banned from this server.`);
+			}
+
 			applyEffectProperties(playerData);
 		}
 	}

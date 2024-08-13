@@ -58,3 +58,17 @@ export const PlayerDataHandler = {
         return data;
     }
 };
+
+export function getPlayerFromName(playerName: string) {
+    const allPlayers = world.getAllPlayers();
+    let targetPlayer: Player | undefined = undefined;
+    for (const potentialPlayer of allPlayers) {
+        console.log(potentialPlayer.name, playerName)
+        if (potentialPlayer.name == playerName) {
+            targetPlayer = potentialPlayer;
+            break;
+        }
+    }
+
+    return targetPlayer;
+}

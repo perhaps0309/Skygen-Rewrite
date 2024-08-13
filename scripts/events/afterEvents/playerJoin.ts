@@ -1,7 +1,8 @@
-import { world, PlayerJoinAfterEvent, Player, PlayerSpawnAfterEvent, ItemStack, EntityItemComponent, EntityInventoryComponent, ItemLockMode } from "@minecraft/server";
+import { world, PlayerJoinAfterEvent, Player, PlayerSpawnAfterEvent, ItemStack, EntityItemComponent, EntityInventoryComponent, ItemLockMode, ItemComponentTypes, EnchantmentType } from "@minecraft/server";
 import { PlayerDataHandler } from "../../libraries/playerData";
 import { MinecraftColors, MinecraftFormatCodes } from "../../libraries/chatFormat";
 import { getHighestRank } from "../../libraries/ranks";
+import { MinecraftEnchantmentTypes } from "@minecraft/vanilla-data";
 
 // Register default player data
 const defaultData = {
@@ -23,11 +24,16 @@ export function handlePlayerJoin(event: PlayerSpawnAfterEvent) {
         world.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "BouncySkygen >> " + MinecraftFormatCodes.RESET + MinecraftColors.AQUA + playerName + MinecraftColors.WHITE + " has joined the server again!\n");
     }
 
-    if (highestPriority > 0) {
-        const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
-        const inventoryContainer = playerInventory.container;
-        if (!inventoryContainer) return;
+    const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
+    const inventoryContainer = playerInventory.container;
+    if (!inventoryContainer) return;
 
+    const compass = new ItemStack("minecraft:compass", 1);
+    compass.nameTag = MinecraftFormatCodes.BOLD + MinecraftColors.GREEN + "Bouncy" + MinecraftColors.AQUA + "MC";
+    compass.lockMode = ItemLockMode.slot;
+    inventoryContainer.setItem(8, compass);
+
+    if (highestPriority > 0) {
         const stick = new ItemStack("minecraft:stick", 1);
         stick.nameTag = MinecraftFormatCodes.BOLD + MinecraftColors.RED + "Admin Stick";
         stick.lockMode = ItemLockMode.slot;

@@ -1,9 +1,9 @@
-import { world, Vector3, ChatSendBeforeEvent, system, Player, EntityInventoryComponent, ItemLockMode } from '@minecraft/server';
-import { chatError, chatServer, chatSuccess, MinecraftColors, MinecraftFormatCodes } from './libraries/chatFormat';
+import { world, Vector3, ChatSendBeforeEvent, system, EntityInventoryComponent, ItemLockMode } from '@minecraft/server';
+import { chatError, chatServer, chatSuccess } from './libraries/chatFormat';
 import { PlotT } from './types';
 import { Vector3Builder } from '@minecraft/math';
 import { WorldDataHandler } from './libraries/worldData';
-import { PlayerDataHandler } from './libraries/playerData';
+import { getPlayerFromName, PlayerDataHandler } from './libraries/playerData';
 import { createPlot, createPlots, destroyPlots } from './libraries/plots';
 
 export function invalidPermissions(event: ChatSendBeforeEvent) {
@@ -58,15 +58,7 @@ export function punish(event: ChatSendBeforeEvent, args: string[]) {
         return chatError(player, "You must provide the username who you want to grant permissions.");
     }
 
-    const allPlayers = world.getAllPlayers();
-    let targetPlayer: Player | undefined = undefined;
-    for (const potentialPlayer of allPlayers) {
-        if (potentialPlayer.name == targetPlayerName) {
-            targetPlayer = potentialPlayer;
-            break;
-        }
-    }
-
+    const targetPlayer = getPlayerFromName(targetPlayerName);
     if (!targetPlayer) {
         return chatError(player, "No player by that username found.");
     }
@@ -91,16 +83,7 @@ export function unpunish(event: ChatSendBeforeEvent, args: string[]) {
         return chatError(player, "You must provide the username who you want to unpunish.");
     }
 
-    const allPlayers = world.getAllPlayers();
-    let targetPlayer: Player | undefined = undefined;
-    for (const potentialPlayer of allPlayers) {
-        console.log(potentialPlayer.name, targetPlayerName)
-        if (potentialPlayer.name == targetPlayerName) {
-            targetPlayer = potentialPlayer;
-            break;
-        }
-    }
-
+    const targetPlayer = getPlayerFromName(targetPlayerName);
     if (!targetPlayer) {
         return chatError(player, "No player by that username found.");
     }

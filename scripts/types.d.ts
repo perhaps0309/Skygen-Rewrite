@@ -32,6 +32,7 @@ export type PlayerDataT = {
     lastEffectTime: number;
     player: Player;
     ranks: { [key: string]: number };
+    isBanned: boolean;
     [key: string]: any;
 }
 
