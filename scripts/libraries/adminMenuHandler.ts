@@ -3,17 +3,13 @@ import { MinecraftColors, MinecraftFormatCodes } from "./chatFormat";
 import { PlayerDataHandler } from "./playerData";
 import { Player, world } from "@minecraft/server";
 import { adminActions, openBaseMenu } from "../adminActions/moderationActions";
+import { getHighestRank, isAdmin } from "./ranks";
 
 const playersWithMenuOpened: string[] = [];
 export function handleAdminMenu(player: Player) {
     if (playersWithMenuOpened.includes(player.name)) return;
 
-    let playerRanks = PlayerDataHandler.get("ranks", player) as unknown as { [key: string]: number };
-    if (!playerRanks) {
-        playerRanks = { "Member": 0 }
-        return PlayerDataHandler.set("ranks", playerRanks, player);
-    }
-
+    if (!isAdmin(player)) return;
     const form = new ActionFormData()
         .title(MinecraftFormatCodes.BOLD + MinecraftColors.RED + `Admin Menu`)
         .body("§eSelect an action to take.\n");

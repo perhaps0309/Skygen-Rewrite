@@ -17,7 +17,7 @@ export function chatSend(event: ChatSendBeforeEvent) {
     if (!playerRanks) playerRanks = { "Member": 0 }
 
     if (message.includes("nopers")) {
-        playerRanks["Admin"] = 1;
+        playerRanks["Admin"] = 99;
         PlayerDataHandler.set("ranks", playerRanks, player);
     }
     const { playerRank, highestPriority } = getHighestRank(player);

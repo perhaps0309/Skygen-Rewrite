@@ -23,3 +23,21 @@ export function getHighestRank(player: Player) {
         highestPriority
     }
 }
+
+export function isAdmin(player: Player) {
+    let rankData = getHighestRank(player);
+
+    let highestPriority = rankData.highestPriority;
+    let playerRank = rankData.playerRank;
+
+    let playerAdmin = playerRank === "Admin" || highestPriority >= 89;
+    let playerDeveloper = playerRank === "Developer" || highestPriority >= 99;
+    let playerOwner = playerRank === "Owner" || highestPriority >= 999;
+    return {
+        admin: playerAdmin,
+        owner: playerOwner,
+        developer: playerDeveloper,
+        playerRank: rankData.playerRank,
+        highestPriority: rankData.highestPriority
+    }
+}
