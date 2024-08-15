@@ -29,6 +29,7 @@ const reportCommand = {
     title: "§eReport",
     description: "§aOpens the report menu.",
     permissions: ["report"],
+    requiredArgs: [], // player, number, boolean, string
     run: (event: ChatSendBeforeEvent, args: string[]) => {
         const player = event.sender;
         let form = new ActionFormData();
@@ -87,3 +88,5 @@ const reportCommand = {
         });
     }
 }
+
+export default reportCommand;

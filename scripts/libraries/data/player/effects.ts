@@ -1,5 +1,5 @@
 import { EntityEffectOptions, Player, system } from "@minecraft/server";
-import { EffectDataT, MinecraftDynamicPropertyT, PlayerDataT } from "../types";
+import { EffectDataT, MinecraftDynamicPropertyT, PlayerDataT } from "../../../types";
 import { PlayerDataHandler } from "./playerData";
 
 /*

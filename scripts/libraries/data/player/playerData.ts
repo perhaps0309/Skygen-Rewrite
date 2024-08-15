@@ -1,6 +1,5 @@
-import { world, Player, Vector3 } from "@minecraft/server";
-import { EffectDataT, MinecraftDynamicPropertyT, PlayerDataT } from '../types';
-
+import { world, Player, Vector3, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot } from "@minecraft/server";
+import { EffectDataT } from "../../../types";
 export const PlayerDataHandler = {
     // Gets the value of a property from the player
     // If it's JSON, then it will automatically be parsed
@@ -59,16 +58,123 @@ export const PlayerDataHandler = {
     }
 };
 
-export function getPlayerFromName(playerName: string) {
-    const allPlayers = world.getAllPlayers();
-    let targetPlayer: Player | undefined = undefined;
-    for (const potentialPlayer of allPlayers) {
-        console.log(potentialPlayer.name, playerName)
-        if (potentialPlayer.name == playerName) {
-            targetPlayer = potentialPlayer;
-            break;
+// Gets a player's object from their name.
+// Handles player's with spaces in their names aswell.
+export function getPlayerFromName(playerName: string | string[]) {
+    if (typeof playerName == "string") {
+        // Handles player's without spaces in their name.
+        const allPlayers = world.getAllPlayers();
+        let targetPlayer: Player | undefined = undefined;
+        for (const potentialPlayer of allPlayers) {
+            console.log(potentialPlayer.name, playerName)
+            if (potentialPlayer.name == playerName) {
+                targetPlayer = potentialPlayer;
+                break;
+            }
+        }
+
+        return targetPlayer;
+    } else {
+        // Handles player's with spaces in their names
+        // Check if the player is indicated to have a space in their name, and if not, then return normally.
+        const playerNameStrings = playerName;
+        const initialString = playerNameStrings[0];
+        if (!initialString.includes(`"`)) {
+            return getPlayerFromName(initialString);
+        }
+
+        // Add the intiial index to the finalPlayerName then keep adding until another quotation mark is found.
+        let finalPlayerName = "";
+        finalPlayerName += initialString;
+        for (let i = 1; i < playerNameStrings.length; i++) {
+            const currentSection = playerNameStrings[i];
+            finalPlayerName += currentSection;
+            if (currentSection.includes(`"`)) {
+                break;
+            }
+        }
+
+        // Remove all quotation marks from the final player name.
+        finalPlayerName = finalPlayerName.replaceAll(`"`, "");
+
+        // Go through all players until the name is found.
+        const allPlayers = world.getAllPlayers();
+        let targetPlayer: Player | undefined = undefined;
+        for (const potentialPlayer of allPlayers) {
+            console.log(potentialPlayer.name, playerName)
+            if (potentialPlayer.name == finalPlayerName) {
+                targetPlayer = potentialPlayer;
+                break;
+            }
         }
     }
+}
 
-    return targetPlayer;
+// Tries to parse the value as JSON data, and if it it fails, then returns the original data.
+function safeJsonParser(value: string) {
+    try {
+        value = JSON.parse(value as string);
+    } catch (err) { }
+    return value;
+}
+
+// Tries to stringify JSON data, and if it fails, then returns the original data.
+function safeJsonStringify(value: any) {
+    // If the value is an object, then stringify it.
+    // Otherwise, return the original value.
+    if (typeof value === "object") {
+        value = JSON.stringify(value)
+    }
+    return value;
+}
+
+export class PlayerData {
+    player: Player;
+
+    constructor(player: Player) {
+        this.player = player;
+    }
+
+    getEffects(): { [key: string]: EffectDataT } {
+        const effects = (this.player.getDynamicProperty("effects") as string) || "";
+        return safeJsonParser(effects) as unknown as { [key: string]: EffectDataT } || {};
+    }
+
+    setEffect(effectName: string, effectData: EffectDataT) {
+        const effects = this.getEffects();
+        effects[effectName] = effectData;
+        this.player.setDynamicProperty("effects", safeJsonStringify(effects));
+    }
+
+    getRanks(): { [key: string]: number } {
+        const ranks = (this.player.getDynamicProperty("ranks") as string) || "";
+        return safeJsonParser(ranks) as unknown as { [key: string]: number } || {};
+    }
+
+    setRank(rankName: string, rankPriority: number) {
+        const ranks = this.getRanks();
+        ranks[rankName] = rankPriority;
+        this.player.setDynamicProperty("ranks", safeJsonStringify(ranks));
+    }
+
+    getPlots() {
+
+    }
+
+    setPlots() {
+
+    }
+
+    getIsBanned() {
+        return this.player.getDynamicProperty("isBanned") || false;
+    }
+
+    setIsBanned(newValue: boolean) {
+        this.player.setDynamicProperty("isBanned", newValue);
+    }
+
+    // Retrieves a player's equippable slots such as armor, mainhand, offhand.
+    getEquippable() {
+        return this.player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
+    }
 }

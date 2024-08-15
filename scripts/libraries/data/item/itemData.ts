@@ -6,8 +6,8 @@ import {
     Player,
     world,
 } from "@minecraft/server";
-import { EnchantmentDataT } from "../types";
-import { MinecraftFormatCodes, removeFormat } from "./chatFormat";
+import { EnchantmentDataT } from "../../../types";
+import { MinecraftFormatCodes, removeFormat } from "../../chatFormat";
 
 export const ItemDataHandler = {
     // Gets the value of a property from the item

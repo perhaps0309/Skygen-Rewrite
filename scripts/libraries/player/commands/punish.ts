@@ -8,6 +8,7 @@ export default {
     title: "§ePunish",
     description: "§aPunishes a player by locking all their items",
     permissions: ["punish"],
+    requiredArgs: ["player"],
     run: (event: ChatSendBeforeEvent, args: string[]) => {
         const player = event.sender;
         const targetPlayerName = args[0];
@@ -15,7 +16,7 @@ export default {
             return chatError(player, "You must provide the username who you want to grant permissions.");
         }
 
-        const targetPlayer = getPlayerFromName(targetPlayerName);
+        const targetPlayer = getPlayerFromName(args);
         if (!targetPlayer) {
             return chatError(player, "No player by that username found.");
         }

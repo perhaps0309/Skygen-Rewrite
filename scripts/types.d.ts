@@ -21,8 +21,6 @@ export type EffectDataT = {
 }
 
 export type PlayerDataT = {
-    [x: string]: {};
-    playerData: {};
     effects: EffectDataT;
     dropMultiplier: number;
     xpMultiplier: number;
@@ -33,7 +31,6 @@ export type PlayerDataT = {
     player: Player;
     ranks: { [key: string]: number };
     isBanned: boolean;
-    [key: string]: any;
 }
 
 export type EnchantmentDataT = {
@@ -58,7 +55,7 @@ export type EnchantmentPurchaseT = {
 
 export type PlotT = {
     location: Vector3; // Set on the corner where the fill command takes place
-    permissions: {[playerName: string]: number};
+    permissions: { [playerName: string]: number };
 }
 
 export type AdminSelectionT = {

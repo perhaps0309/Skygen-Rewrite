@@ -13,13 +13,13 @@ import {
     Vector3,
     ItemUseBeforeEvent, // Add this line to import the Vector3 class
 } from "@minecraft/server";
-import { validBlockTypes, toolTypes } from "../../libraries/baseData";
-import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
+import { validBlockTypes, toolTypes } from "../../libraries/data/generators/generatorData";
+import { addLore, ItemDataHandler, removeLore } from "../../libraries/data/item/itemData";
 import { removeFormat } from "../../libraries/chatFormat";
-import { WorldDataHandler } from "../../libraries/worldData";
-import { PlayerDataHandler } from "../../libraries/playerData";
+import { WorldDataHandler } from "../../libraries/data/world/worldData";
+import { PlayerDataHandler } from "../../libraries/data/player/playerData";
 import { AdminSelectionT } from "../../types";
-import { handleAdminMenu } from "../../libraries/adminMenuHandler";
+import { handleAdminMenu } from "../../libraries/admin/adminMenuHandler";
 
 let genTypes: { [key: string]: string } = {
     "coal": "minecraft:coal_ore"

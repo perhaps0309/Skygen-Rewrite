@@ -1,6 +1,6 @@
 import { PlayerBreakBlockBeforeEvent, PlayerInteractWithBlockBeforeEvent, world } from "@minecraft/server";
 import { getPlotFromPosition } from "../../commands";
-import { WorldDataHandler } from "../../libraries/worldData";
+import { WorldDataHandler } from "../../libraries/data/world/worldData";
 import { PlotT } from "../../types";
 
 export function checkIfPlot(event: PlayerBreakBlockBeforeEvent | PlayerInteractWithBlockBeforeEvent) {

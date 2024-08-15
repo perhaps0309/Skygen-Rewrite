@@ -45,3 +45,7 @@ export const WorldDataHandler = {
         }
     },
 };
+
+export class WorldData {
+
+}

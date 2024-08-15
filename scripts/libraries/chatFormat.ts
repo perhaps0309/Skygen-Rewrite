@@ -45,15 +45,15 @@ export function removeFormat(str: string): string {
 }
 
 export function chatSuccess(player: Player, message: string) {
-    player.sendMessage(MinecraftColors.GREEN + "SUCCESS << " + message);
+    player.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "SUCCESS << " + MinecraftFormatCodes.RESET + message);
 }
 
 export function chatWarn(player: Player, message: string) {
-    player.sendMessage(MinecraftColors.YELLOW + "WARNING << " + message);
+    player.sendMessage(MinecraftColors.YELLOW + MinecraftFormatCodes.BOLD + "WARNING << " + MinecraftFormatCodes.BOLD + message);
 }
 
 export function chatError(player: Player, message: string) {
-    player.sendMessage(MinecraftColors.RED + "ERROR << " + message);
+    player.sendMessage(MinecraftColors.RED + MinecraftFormatCodes.BOLD + "ERROR << " + MinecraftFormatCodes.RESET + message);
 }
 
 export function chatServer(player: Player, message: string) {
