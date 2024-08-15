@@ -1,5 +1,6 @@
 import { world, Player, Vector3, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot } from "@minecraft/server";
 import { EffectDataT } from "../../../types";
+import { rankPriority } from "./ranks";
 export const PlayerDataHandler = {
     // Gets the value of a property from the player
     // If it's JSON, then it will automatically be parsed
@@ -151,9 +152,26 @@ export class PlayerData {
         return safeJsonParser(ranks) as unknown as { [key: string]: number } || {};
     }
 
-    setRank(rankName: string, rankPriority: number) {
+    hasRank(rankName: string) {
         const ranks = this.getRanks();
-        ranks[rankName] = rankPriority;
+        return ranks[rankName] ? true : false;
+    }
+
+    addRank(rankName: string) {
+        let rankP = rankPriority[rankName];
+        if (!rankPriority) throw Error("Invalid rank name.");
+
+        const ranks = this.getRanks();
+        ranks[rankName] = rankP;
+
+        this.player.setDynamicProperty("ranks", safeJsonStringify(ranks));
+    }
+
+    removeRank(rankName: string) {
+        const ranks = this.getRanks();
+        if (!ranks[rankName]) return;
+
+        delete ranks[rankName];
         this.player.setDynamicProperty("ranks", safeJsonStringify(ranks));
     }
 

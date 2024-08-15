@@ -2,10 +2,18 @@ import { Player } from "@minecraft/server";
 import { PlayerDataHandler } from "./playerData";
 import { MinecraftColors } from "../../chatFormat";
 
+export const rankPriority: { [key: string]: number } = {
+    "none": 0, // Default rank for all players
+    "member": 1, // Assigned after player spawn
+    "admin": 89,
+    "developer": 99,
+    "owner": 999
+}
+
 export const rankColors: { [key: string]: string } = {
-    "Member": MinecraftColors.AQUA,
-    "Admin": MinecraftColors.RED,
-    "Owner": MinecraftColors.DARK_PURPLE
+    "member": MinecraftColors.AQUA,
+    "admin": MinecraftColors.RED,
+    "owner": MinecraftColors.DARK_PURPLE
 }
 
 export function getHighestRank(player: Player) {
