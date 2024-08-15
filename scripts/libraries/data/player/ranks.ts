@@ -1,5 +1,12 @@
 import { Player } from "@minecraft/server";
 import { PlayerDataHandler } from "./playerData";
+import { MinecraftColors } from "../../chatFormat";
+
+export const rankColors: { [key: string]: string } = {
+    "Member": MinecraftColors.AQUA,
+    "Admin": MinecraftColors.RED,
+    "Owner": MinecraftColors.DARK_PURPLE
+}
 
 export function getHighestRank(player: Player) {
     let playerRanks = PlayerDataHandler.get("ranks", player) as unknown as { [key: string]: number };

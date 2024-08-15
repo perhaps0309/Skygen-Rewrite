@@ -1,8 +1,8 @@
 import { Player, world } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
-import { MinecraftFormatCodes, MinecraftColors, chatSuccess } from "../libraries/chatFormat";
-import { PlayerDataHandler } from "../libraries/playerData";
-import { isAdmin } from "../libraries/ranks";
+import { MinecraftFormatCodes, MinecraftColors, chatSuccess } from "../../chatFormat";
+import { PlayerDataHandler } from "../../data/player/playerData";
+import { isAdmin } from "../../data/player/ranks";
 
 // Holds all the functions that admins can perform from their admin stick.
 export const adminActions: { [key: string]: any } = {

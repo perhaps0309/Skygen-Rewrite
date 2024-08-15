@@ -1,14 +1,14 @@
 import { EntityComponentTypes, EntityEquippableComponent, EntityInventoryComponent, EquipmentSlot, ItemStack, Player } from "@minecraft/server";
-import { ItemDataHandler, updateLore } from "./itemData";
+import { ItemDataHandler, updateLore } from "../data/item/itemData";
 import { ActionFormData } from "@minecraft/server-ui";
 
-import { fortuneData } from "../enchantments/fortune";
-import { luck1Data } from "../enchantments/luck1";
-import { luck2Data } from "../enchantments/luck2";
-import { xpboostData } from "../enchantments/xpboost";
-import { EnchantmentPurchaseT } from "../types";
-import { abbreviateMoney, getPlayerMoney, setPlayerMoney } from "./money";
-import { MinecraftColors } from "./chatFormat";
+import { fortuneData } from "./fortune";
+import { luck1Data } from "./luck1";
+import { luck2Data } from "./luck2";
+import { xpboostData } from "./xpboost";
+import { EnchantmentPurchaseT } from "../../types";
+import { abbreviateMoney, getPlayerMoney, setPlayerMoney } from "../data/player/money";
+import { MinecraftColors } from "../chatFormat";
 
 const enchantments: { [key: string]: EnchantmentPurchaseT } = { fortuneData, luck1Data, luck2Data, xpboostData };
 

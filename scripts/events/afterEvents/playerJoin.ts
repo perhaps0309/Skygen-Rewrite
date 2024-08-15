@@ -1,7 +1,7 @@
 import { world, PlayerJoinAfterEvent, Player, PlayerSpawnAfterEvent, ItemStack, EntityItemComponent, EntityInventoryComponent, ItemLockMode, ItemComponentTypes, EnchantmentType } from "@minecraft/server";
-import { PlayerDataHandler } from "../../libraries/playerData";
+import { PlayerDataHandler } from "../../libraries/data/player/playerData";
 import { MinecraftColors, MinecraftFormatCodes } from "../../libraries/chatFormat";
-import { getHighestRank } from "../../libraries/ranks";
+import { getHighestRank } from "../../libraries/data/player/ranks";
 import { MinecraftEnchantmentTypes } from "@minecraft/vanilla-data";
 
 // Register default player data

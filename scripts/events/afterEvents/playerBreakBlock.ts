@@ -7,9 +7,9 @@ import {
     PlayerBreakBlockAfterEvent,
     system,
 } from "@minecraft/server";
-import { validBlockTypes, toolTypes } from "../../libraries/baseData";
-import { addLore, ItemDataHandler, removeLore } from "../../libraries/itemData";
-import { PlayerDataHandler } from "../../libraries/playerData";
+import { validBlockTypes, toolTypes } from "../../libraries/data/generators/generatorData";
+import { addLore, ItemDataHandler, removeLore } from "../../libraries/data/item/itemData";
+import { PlayerDataHandler } from "../../libraries/data/player/playerData";
 import { EffectDataT, EnchantmentDataT } from "../../types";
 
 export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {

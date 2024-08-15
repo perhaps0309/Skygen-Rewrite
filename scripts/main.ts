@@ -1,11 +1,11 @@
 import { world, system, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot, ItemStack, ItemDurabilityComponent, EntityInventoryComponent } from "@minecraft/server";
 import { telekinesisAfterBreak } from "./events/afterEvents/playerBreakBlock";
-import { PlayerDataHandler } from "./libraries/playerData";
-import { addCustomEnchantment, removeCustomEnchantment, updateLore } from "./libraries/itemData";
+import { PlayerDataHandler } from "./libraries/data/player/playerData";
+import { addCustomEnchantment, removeCustomEnchantment, updateLore } from "./libraries/data/item/itemData";
 import { MinecraftColors } from "./libraries/chatFormat";
 import { PlayerDataT } from "./types";
-import { addEffect, applyEffectProperties, rotateEffectTitles } from "./libraries/effects";
-import { setPlayerMoney } from "./libraries/money";
+import { addEffect, applyEffectProperties, rotateEffectTitles } from "./libraries/data/player/effects";
+import { setPlayerMoney } from "./libraries/data/player/money";
 
 world.beforeEvents.chatSend.subscribe(chatSend);
 world.beforeEvents.itemUseOn.subscribe(handleGeneratorCreation);
@@ -23,21 +23,21 @@ import { chatSend } from "./events/beforeEvents/chatSend";
 import { playerSpawn } from "./events/afterEvents/playerSpawn";
 import { checkIfPlot } from "./events/beforeEvents/checkIfPlot";
 import { handleAdminStick, handleGeneratorCreation } from "./events/beforeEvents/ItemUseOn";
-import { openEnchantmentMenu } from "./libraries/enchantmentHandler";
+import { openEnchantmentMenu } from "./libraries/enchantments/enchantmentHandler";
 
 world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
 	// Check if the block the player is interacting with is on someone else's plot.
 	if (checkIfPlot(event)) {
 		return event.cancel = true;
 	}
-	
+
 	// If the block is an enchanting table, then open the custom enchantment menu
 	if (event.block.typeId == "minecraft:enchanting_table") {
 		const player = event.player;
 		system.run(() => {
 			openEnchantmentMenu(player)
 		});
-	
+
 		event.cancel = true;
 	}
 });

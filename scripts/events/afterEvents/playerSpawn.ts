@@ -1,5 +1,5 @@
 import { EntityEffectOptions, PlayerSpawnAfterEvent, system } from "@minecraft/server";
-import { PlayerDataHandler } from "../../libraries/playerData";
+import { PlayerDataHandler } from "../../libraries/data/player/playerData";
 import { EffectDataT } from "../../types";
 
 export function playerSpawn(event: PlayerSpawnAfterEvent) {

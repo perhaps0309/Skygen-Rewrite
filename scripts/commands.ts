@@ -2,9 +2,9 @@ import { world, Vector3, ChatSendBeforeEvent, system, EntityInventoryComponent, 
 import { chatError, chatServer, chatSuccess } from './libraries/chatFormat';
 import { PlotT } from './types';
 import { Vector3Builder } from '@minecraft/math';
-import { WorldDataHandler } from './libraries/worldData';
-import { getPlayerFromName, PlayerDataHandler } from './libraries/playerData';
-import { createPlot, createPlots, destroyPlots } from './libraries/plots';
+import { WorldDataHandler } from './libraries/data/world/worldData';
+import { getPlayerFromName, PlayerDataHandler } from './libraries/data/player/playerData';
+import { createPlot, createPlots, destroyPlots } from './libraries/data/world/plots';
 
 export function invalidPermissions(event: ChatSendBeforeEvent) {
     return chatError(event.sender, "You do not have permissions to run this command.");

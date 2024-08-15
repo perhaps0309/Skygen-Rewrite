@@ -1,4 +1,4 @@
-import { EnchantmentPurchaseT } from "../types";
+import { EnchantmentPurchaseT } from "../../types";
 
 const fortuneData: EnchantmentPurchaseT = {
     title: "§e§lFortune",

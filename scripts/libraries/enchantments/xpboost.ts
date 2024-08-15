@@ -1,4 +1,6 @@
-const xpboostData = {
+import { EnchantmentPurchaseT } from "../../types";
+
+const xpboostData: EnchantmentPurchaseT = {
     title: "§d§lXP Boost",
     description: "§6Increases the amount of XP gained per block broken",
     name: "xpboost",

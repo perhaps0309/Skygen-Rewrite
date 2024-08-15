@@ -1,4 +1,4 @@
-import { BlockDataT } from "../types";
+import { BlockDataT } from "../../../types";
 
 export const validBlockTypes: { [key: string]: { [key: string]: BlockDataT } } = {
     pickaxe: {

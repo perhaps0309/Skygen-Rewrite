@@ -1,12 +1,8 @@
 import { ChatSendBeforeEvent, system, world } from "@minecraft/server";
-import { PlayerDataHandler } from "../../libraries/playerData";
 import { MinecraftColors } from "../../libraries/chatFormat";
 import { addPerm, createPlotChat, destroyPlotChat, help, invalidPermissions, plot, punish, removePerm, report, resetPlots, setPlotArea, unpunish } from "../../commands";
-import { getHighestRank } from '../../libraries/ranks';
-
-const rankColors: { [key: string]: string } = {
-    "Admin": MinecraftColors.RED
-}
+import { getHighestRank, rankColors } from "../../libraries/data/player/ranks";
+import { PlayerDataHandler } from "../../libraries/data/player/playerData";
 
 const commandPrefix = "!";
 export function chatSend(event: ChatSendBeforeEvent) {

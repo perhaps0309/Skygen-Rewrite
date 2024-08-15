@@ -1,4 +1,6 @@
-const luck1Data = {
+import { EnchantmentPurchaseT } from "../../types";
+
+const luck1Data: EnchantmentPurchaseT = {
     title: "§b§lLuck I",
     description: "§6Increases the chance of getting rare drops",
     name: "luck1",
