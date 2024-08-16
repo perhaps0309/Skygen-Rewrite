@@ -14,10 +14,8 @@ import {
     ItemUseBeforeEvent, // Add this line to import the Vector3 class
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/data/generators/generatorData";
-import { addLore, ItemDataHandler, removeLore } from "../../libraries/data/item/itemData";
 import { removeFormat } from "../../libraries/chatFormat";
 import { WorldDataHandler } from "../../libraries/data/world/worldData";
-import { PlayerDataHandler } from "../../libraries/data/player/playerData";
 import { AdminSelectionT } from "../../types";
 import { handleAdminMenu } from "../../libraries/admin/adminMenuHandler";
 

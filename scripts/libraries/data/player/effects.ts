@@ -69,6 +69,11 @@ export function applyEffectProperties(player: Player) {
 
 export function rotateEffectTitles(player: Player) {
     const playerData = playersData[player.name];
+    // warn out playersData
+    for (const playerName in playersData) {
+        const playerData = playersData[playerName];
+        console.warn(playerName)
+    }
     const effectKeys = Object.keys(playerData.getEffects());
     const effectIndex = playerData.getEffectIndex();
     if (effectIndex + 1 > effectKeys.length) {

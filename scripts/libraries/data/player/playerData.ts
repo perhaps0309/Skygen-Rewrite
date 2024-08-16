@@ -59,10 +59,6 @@ export const PlayerDataHandler = {
     }
 };
 
-export function getAllPlayerData() {
-
-}
-
 // Gets a player's object from their name.
 // Handles player's with spaces in their names aswell.
 export function getPlayerFromName(playerName: string | string[]) {

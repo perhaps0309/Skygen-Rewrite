@@ -117,7 +117,7 @@ export class ItemData {
             // Update the item in the player's inventory
             container.setItem(this.slot, this.item);
         } else {
-            const playerEquipment = this.player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
+            const playerEquipment = this.player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent
             playerEquipment.setEquipment(this.slot, this.item);
         }
         */

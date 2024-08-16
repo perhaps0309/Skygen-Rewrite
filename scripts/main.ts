@@ -88,7 +88,6 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 			break;
 		}
 		case "minecraft:redstone_block": {
-			removeCustomEnchantment(player, item, "fortune");
 			break;
 		}
 		case "minecraft:emerald_block": {

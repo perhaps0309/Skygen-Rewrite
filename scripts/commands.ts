@@ -3,7 +3,7 @@ import { chatError, chatServer, chatSuccess } from './libraries/chatFormat';
 import { PlotT } from './types';
 import { Vector3Builder } from '@minecraft/math';
 import { WorldDataHandler } from './libraries/data/world/worldData';
-import { getPlayerFromName, PlayerDataHandler } from './libraries/data/player/playerData';
+import { getPlayerFromName } from './libraries/data/player/playerData';
 import { createPlot, createPlots, destroyPlots } from './libraries/data/world/plots';
 
 export function invalidPermissions(event: ChatSendBeforeEvent) {

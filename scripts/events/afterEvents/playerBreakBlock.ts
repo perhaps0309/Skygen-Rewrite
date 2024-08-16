@@ -8,8 +8,7 @@ import {
     system,
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/data/generators/generatorData";
-import { addLore, ItemDataHandler, removeLore } from "../../libraries/data/item/itemData";
-import { PlayerDataHandler } from "../../libraries/data/player/playerData";
+import { ItemData } from "../../libraries/data/item/itemData";
 import { EffectDataT, EnchantmentDataT } from "../../types";
 import { playersData } from "../../main";
 
@@ -41,7 +40,8 @@ export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
     let totalLuck = playerLuck ? playerLuck.strength : 0; // Luck 1 = 1 per level, Luck 2 = 2 per level, Luck 3 = 3 per level
 
     // Get custom enchantments
-    const customEnchantments = (ItemDataHandler.get("enchantments", playerItem) as unknown as EnchantmentDataT) || {};
+    let itemData = new ItemData(playerItem, player);
+    const customEnchantments = itemData.getEnchantments();
     for (const enchantment of Object.values(customEnchantments)) {
         const anyEnchantment = enchantment as any;
         if (anyEnchantment.name == "luck1") {
