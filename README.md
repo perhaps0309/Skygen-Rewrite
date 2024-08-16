@@ -48,16 +48,20 @@ Contributions are welcome! Please fork the repository and create a pull request 
 
 ## TODO
 
-Custom Generators: Implement the functionality to create custom generators that generate specific types of ores or resources.
+Custom Generators: Implement the functionality to create custom generators that generate specific types of ores or resources. (IN PROGRESS)
 
-Fix Enchantments: Address any issues with the existing enchantments and ensure they function correctly.
+Create Shop: Finish creating the player shop, with kits, items, blocks, and a generator template (IN PROGRESS)
 
-Handle Lore: Implement a system to properly handle and display lore for items, providing additional information to players.
+Finish Enchantments: Add more custom enchantments, balance out prices, set limits (IN PROGRESS)
 
-Reorganize Code: Refactor and reorganize the codebase to improve readability, maintainability, and performance.
+Fix Enchantments: Address any issues with the existing enchantments and ensure they function correctly. (COMPLETED)
 
-Finish Plots: Complete the implementation of the custom plots feature, allowing players to fully claim, manage, and expand their own plots.
+Handle Lore: Implement a system to properly handle and display lore for items, providing additional information to players. (COMPLETED)
 
-Create Custom Leaderboard: Develop a custom leaderboard system to track and display player rankings based on various criteria.
+Reorganize Code: Refactor and reorganize the codebase to improve readability, maintainability, and performance. (COMPLETED)
 
-Create Proper Documentation: Add proper documentation to files, so any developer can easily find where functions are. 
+Finish Plots: Complete the implementation of the custom plots feature, allowing players to fully claim, manage, and expand their own plots. (SOON)
+
+Create Custom Leaderboard: Develop a custom leaderboard system to track and display player rankings based on various criteria. (SOON)
+
+Create Proper Documentation: Add proper documentation to files, so any developer can easily find where functions are.  (SOON)
