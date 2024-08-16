@@ -161,6 +161,14 @@ export class PlayerData {
         this.player.setDynamicProperty("effects", "{}");
     }
 
+    getEffectIndex() {
+        return this.player.getDynamicProperty("effectIndex") as number || 0;
+    }
+
+    setEffectIndex(newValue: number) {
+        this.player.setDynamicProperty("effectIndex", newValue);
+    }
+
     getRanks(): { [key: string]: number } {
         const ranks = (this.player.getDynamicProperty("ranks") as string) || `{ "Member": 0 }`;
         return safeJsonParser(ranks) as unknown as { [key: string]: number } || {};

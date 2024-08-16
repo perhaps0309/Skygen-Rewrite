@@ -2,7 +2,6 @@ import { ChatSendBeforeEvent, system, world } from "@minecraft/server";
 import { MinecraftColors } from "../../libraries/chatFormat";
 import { addPerm, createPlotChat, destroyPlotChat, help, invalidPermissions, plot, punish, removePerm, report, resetPlots, setPlotArea, unpunish } from "../../commands";
 import { getHighestRank, rankColors } from "../../libraries/data/player/ranks";
-import { PlayerDataHandler } from "../../libraries/data/player/playerData";
 import { playersData } from "../../main";
 
 const commandPrefix = "!";

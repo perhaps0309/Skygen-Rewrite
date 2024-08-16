@@ -1,6 +1,5 @@
 import { ActionFormData } from "@minecraft/server-ui";
 import { MinecraftColors, MinecraftFormatCodes } from "../chatFormat";
-import { PlayerDataHandler } from "../data/player/playerData";
 import { Player, world } from "@minecraft/server";
 import { adminActions, openBaseMenu } from "./adminActions/moderationActions";
 import { getHighestRank, isAdmin } from "../data/player/ranks";

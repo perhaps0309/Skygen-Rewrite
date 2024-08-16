@@ -20,20 +20,13 @@ export type EffectDataT = {
     [key: string]: MinecraftDynamicPropertyT;
 }
 
-export type PlayerDataT = {
-    effects: EffectDataT;
-    dropMultiplier: number;
-    xpMultiplier: number;
-    damageMultiplier: number;
-    baseHaste: number;
-    effectIndex: number;
-    lastEffectTime: number;
-    player: Player;
-    ranks: { [key: string]: number };
-    isBanned: boolean;
+export type EnchantmentDataT = {
+    name: string;
+    level: number;
+    [key: string]: any;
 }
 
-export type EnchantmentDataT = {
+export type ItemEffectDataT = {
     name: string;
     level: number;
     [key: string]: any;

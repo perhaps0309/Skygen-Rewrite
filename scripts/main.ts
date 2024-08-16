@@ -1,9 +1,8 @@
 import { world, system, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot, ItemStack, ItemDurabilityComponent, EntityInventoryComponent } from "@minecraft/server";
 import { telekinesisAfterBreak } from "./events/afterEvents/playerBreakBlock";
-import { PlayerData, PlayerDataHandler } from "./libraries/data/player/playerData";
-import { addCustomEnchantment, removeCustomEnchantment, updateLore } from "./libraries/data/item/itemData";
+import { getPlayerFromName, PlayerData, PlayerDataHandler } from "./libraries/data/player/playerData";
+import { ItemData } from "./libraries/data/item/itemData";
 import { MinecraftColors } from "./libraries/chatFormat";
-import { PlayerDataT } from "./types";
 import { applyEffectProperties, rotateEffectTitles } from "./libraries/data/player/effects";
 import { setPlayerMoney } from "./libraries/data/player/money";
 import { handlePlayerJoin } from "./events/afterEvents/playerJoin";
@@ -71,31 +70,11 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 	// Testing
 	switch (block.type.id) {
 		case "minecraft:gold_block": {
-			addCustomEnchantment(player, item, {
+			let itemData = new ItemData(item, player)
+			itemData.addEnchantment({
 				name: "fortune",
-				currentDisplayName: MinecraftColors.AQUA + "Fortune",
-				level: 8,
-			});
-
-			addCustomEnchantment(player, item, {
-				name: "luck1",
-				currentDisplayName: MinecraftColors.GREEN + "Luck I",
-				level: 23,
-			});
-
-			addCustomEnchantment(player, item, {
-				name: "luck2",
-				currentDisplayName: MinecraftColors.DARK_GREEN + "Luck II",
-				level: 4,
-			});
-
-			addCustomEnchantment(player, item, {
-				name: "xpboost",
-				currentDisplayName: MinecraftColors.LIGHT_PURPLE + "XP Boost",
-				level: 7,
-			});
-
-			updateLore(player, item);
+				level: 23
+			})
 
 			// Give the player a coal generator chicken
 			const itemStack = new ItemStack("minecraft:stone", 1);
@@ -203,24 +182,22 @@ function tickSystem() {
 	if (system.currentTick % 20 === 0) {
 		// Get all players, and check if they have effects
 		// If the player is banned, then kick them from the world.
-		const allPlayerData = PlayerDataHandler.getAll();
-		for (const playerName in allPlayerData) {
-			const playerData: PlayerDataT = allPlayerData[playerName];
-			if (playerData.isBanned) {
-				world.getDimension("overworld").runCommand(`/kick ${playerData.player.name} You're banned from this server.`);
+		const allPlayers = world.getAllPlayers()
+		for (const player of allPlayers) {
+			if (playersData[player.name].getIsBanned()) {
+				world.getDimension("overworld").runCommand(`/kick ${player.name} You're banned from this server.`);
 			}
 
-			applyEffectProperties(playerData);
+			applyEffectProperties(player);
 		}
 	}
 
 	// Runs every 5 seconds
 	if (system.currentTick % 100 === 0) {
 		// Alternate the effects displayed
-		const allPlayerData = PlayerDataHandler.getAll();
-		for (const playerName in allPlayerData) {
-			const playerData: PlayerDataT = allPlayerData[playerName];
-			rotateEffectTitles(playerData);
+		const allPlayers = world.getAllPlayers()
+		for (const player of allPlayers) {
+			rotateEffectTitles(player);
 		}
 	}
 

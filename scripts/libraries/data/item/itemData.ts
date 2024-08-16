@@ -1,159 +1,165 @@
-import {
-    EntityComponentTypes,
-    EntityEquippableComponent,
-    EquipmentSlot,
-    ItemStack,
-    Player,
-    world,
-} from "@minecraft/server";
-import { EnchantmentDataT } from "../../../types";
+import { EntityComponentTypes, EntityEquippableComponent, EntityInventoryComponent, EquipmentSlot, ItemStack, Player } from "@minecraft/server";
+import { EffectDataT, EnchantmentDataT, ItemEffectDataT } from "../../../types";
 import { MinecraftFormatCodes, removeFormat } from "../../chatFormat";
+import { enchantmentTitles } from "../../enchantments/enchantmentHandler";
+import { safeJsonParser, safeJsonStringify } from "../player/playerData";
 
-export const ItemDataHandler = {
-    // Gets the value of a property from the item
-    // If it's JSON, then it will automatically be parsed
-    get(key: string, item: ItemStack) {
-        let value = item.getDynamicProperty(key);
-        try { value = JSON.parse(value as string); } catch (err) { }
-        return value;
-    },
+export class ItemData {
+    public item: ItemStack;
+    //public slot: EquipmentSlot | number;
+    private player: Player;
 
-    // Sets the value of a property on the item
-    set(key: string, value: any, item: ItemStack, player: Player) {
+    constructor(item: ItemStack, player: Player) {
+        this.item = item;
+        this.player = player;
+    }
+
+    public getDynamicProperty(key: string): any {
+        let value = this.item.getDynamicProperty(key);
+        return safeJsonParser(value);
+    }
+
+    public setDynamicProperty(key: string, value: any): void {
         if (value === undefined) throw Error("Invalid value.");
-        if (typeof value === "object") value = JSON.stringify(value);
+        if (typeof value === "object") value = safeJsonStringify(value);
 
-        const playerEquipment = player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
-        item.setDynamicProperty(key, value);
-        playerEquipment.setEquipment(EquipmentSlot.Mainhand, item);
-    },
-
-    // Checks if the item has a property
-    has(key: string, item: ItemStack) {
-        return !!item.getDynamicProperty(key);
-    },
-
-    // Deletes a property from the item
-    delete(key: string, item: ItemStack) {
-        item.setDynamicProperty(key, undefined);
-    },
-
-    // Gets all of an item's data
-    entries(item: ItemStack) {
-        const dynamicPropertyIds = item.getDynamicPropertyIds();
-        const entries: { [key: string]: any } = {};
-        for (const dynamicPropertyKey of dynamicPropertyIds) {
-            entries[dynamicPropertyKey] = this.get(dynamicPropertyKey, item);
-        }
-
-        return entries;
-    },
-
-    // Deletes all of an item's data
-    deleteAll(item: ItemStack) {
-        const itemData = this.entries(item);
-        for (const dynamicPropertyKey of Object.keys(itemData)) {
-            this.delete(dynamicPropertyKey, item);
-        }
-    },
-};
-
-// Adds custom text to an item
-export function addLore(player: Player, item: ItemStack, text: string) {
-    // Check if lore limit is past 21 lines
-    const lore = item.getLore();
-    if (lore.length >= 21) return;
-
-    const playerEquipment = player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
-    lore.push(text);
-
-    item.setLore(lore);
-    playerEquipment.setEquipment(EquipmentSlot.Mainhand, item);
-}
-
-// Removes custom text from an item
-export function removeLore(player: Player, item: ItemStack, text: string) {
-    const lore = item.getLore();
-    const playerEquipment = player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
-
-    // Search lore for text and remove it
-    lore.forEach((currentLore, index) => {
-        if (removeFormat(text) == removeFormat(text)) {
-            lore.splice(index, 1);
-        }
-    });
-
-    lore.forEach((currentLore, index) => {
-        if (removeFormat(text) == removeFormat(text)) {
-            lore.splice(index, 1);
-        }
-    });
-
-    item.setLore(lore);
-    playerEquipment.setEquipment(EquipmentSlot.Mainhand, item);
-}
-
-export function updateLore(player: Player, item: ItemStack) {
-    const longestText = "Has Custom Properties";
-    let currentEnchantments = (ItemDataHandler.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
-
-    // Go through the items lore and find any enchantments and remove them
-    const lore = item.getLore();
-    for (let i = 0; i < lore.length; i++) {
-        const currentLore = lore[i];
-        removeLore(player, item, currentLore);
+        this.item.setDynamicProperty(key, value);
+        this.updateItem();
     }
 
-    // Add the enchantments back to the item 
-    let enchantmentSpacing = longestText.length - ("Enchantments".length);
-    addLore(player, item, " ".repeat(Math.floor(enchantmentSpacing / 2) + 1) + MinecraftFormatCodes.BOLD + "Enchantments" + MinecraftFormatCodes.RESET);
-    for (const enchantment in currentEnchantments) {
-        const currentEnchantmentData = currentEnchantments[enchantment] as EnchantmentDataT;
-        const displayName = currentEnchantmentData.currentDisplayName;
-        const displayLength = removeFormat(displayName + " " + currentEnchantmentData.level).length;
-        const spaces = longestText.length - displayLength;
-        const maxLength = longestText.length;
-        if (displayLength > maxLength) {
-            // shorten down to 14 characters
-            currentEnchantmentData.currentDisplayName = displayName.slice(0, maxLength);
-        }
-
-        const newDisplayName = " ".repeat(Math.floor(spaces / 2 + 0.5) + 3) + displayName + " " + currentEnchantmentData.level;
-        addLore(player, item, newDisplayName);
-    }
-}
-
-// Adds a custom enchantment to an item
-// Automatically formats the enchantment
-export function addCustomEnchantment(player: Player, item: ItemStack, enchantmentData: EnchantmentDataT) {
-    // Check if the item already has the new enchantment
-    const currentEnchantments = (ItemDataHandler.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT; }) || {};
-    if (currentEnchantments[enchantmentData.name]) return;
-
-    currentEnchantments[enchantmentData.name] = enchantmentData;
-
-    // Set the enchantments property
-    ItemDataHandler.set("enchantments", currentEnchantments, item, player);
-    updateLore(player, item);
-}
-
-// Removes a custom enchantment from an item
-export function removeCustomEnchantment(player: Player, item: ItemStack, name: string) {
-    const currentEnchantments = (ItemDataHandler.get("enchantments", item) as unknown as { [key: string]: EnchantmentDataT | undefined; }) || {};
-    if (!currentEnchantments[name]) return;
-
-    const displayName = currentEnchantments[name].currentDisplayName;
-
-    // Go through the items lore and find the specified enchantment then remove it
-    const lore = item.getLore();
-    for (let i = 0; i < lore.length; i++) {
-        const currentLore = lore[i];
-        if (currentLore == displayName || (lore.length == 1 && currentLore.toLowerCase().includes("enchantments"))) {
-            removeLore(player, item, currentLore);
-        }
+    // Lore functions
+    public getLore(): string[] {
+        return this.item.getLore();
     }
 
-    // Remove enchantment from custom properties
-    delete currentEnchantments[name];
-    ItemDataHandler.set("enchantments", currentEnchantments, item, player);
+    public setLore(lore: string[]): void {
+        this.item.setLore(lore);
+        this.updateItem();
+    }
+
+    public addLore(lore: string): void {
+        const currentLore = this.getLore();
+        currentLore.push(lore);
+        this.setLore(currentLore);
+    }
+
+    public removeLore(lore: string | number): void {
+        const currentLore = this.getLore();
+        if (typeof lore === "number") {
+            currentLore.splice(lore, 1);
+        } else {
+            const index = currentLore.indexOf(lore);
+            if (index !== -1) {
+                currentLore.splice(index, 1);
+            }
+        }
+
+        this.setLore(currentLore);
+    }
+
+    // Enchantment functions
+    public getEnchantments(): { [key: string]: EnchantmentDataT } {
+        return this.getDynamicProperty("enchantments") || {};
+    }
+
+    public setEnchantments(enchantments: { [key: string]: EnchantmentDataT }): void {
+        this.setDynamicProperty("enchantments", enchantments);
+        this.updateLore();
+    }
+
+    public addEnchantment(enchantment: EnchantmentDataT): void {
+        const enchantments = this.getEnchantments();
+        enchantments[enchantment.name] = enchantment;
+
+        this.setEnchantments(enchantments);
+    }
+
+    public removeEnchantment(enchantment: string): void {
+        const enchantments = this.getEnchantments();
+        delete enchantments[enchantment];
+
+        this.setEnchantments(enchantments);
+    }
+
+    // Effect functions 
+    public getEffects(): { [key: string]: any } {
+        return this.getDynamicProperty("effects") || {};
+    }
+
+    public setEffects(effects: { [key: string]: any }): void {
+        this.setDynamicProperty("effects", effects);
+    }
+
+    public addEffect(effect: ItemEffectDataT): void {
+        const effects = this.getEffects();
+        effects[effect.effect] = effect;
+
+        this.setEffects(effects);
+    }
+
+    public removeEffect(effect: string): void {
+        const effects = this.getEffects();
+        delete effects[effect];
+
+        this.setEffects(effects);
+    }
+
+    // Dynamic property functions
+    public updateItem(): void {
+        /*
+        if (typeof this.slot === "number") {
+            const inventory = this.player.getComponent("minecraft:inventory") as EntityInventoryComponent;
+            const container = inventory.container;
+
+            // Check if the player has an inventory
+            if (!container) return;
+
+            // Update the item in the player's inventory
+            container.setItem(this.slot, this.item);
+        } else {
+            const playerEquipment = this.player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
+            playerEquipment.setEquipment(this.slot, this.item);
+        }
+        */
+    }
+
+    public updateLore(): void {
+        const longestText = "Has Custom Properties";
+        let enchantments = this.getEnchantments();
+
+        // Remove the old lore
+        const currentLore = this.getLore();
+        currentLore.forEach((lore, index) => {
+            this.removeLore(index);
+        });
+
+        let enchantmentSpacing = longestText.length - ("Enchantments".length);
+        this.addLore(" ".repeat(Math.floor(enchantmentSpacing / 2) + 1) + MinecraftFormatCodes.BOLD + "Enchantments" + MinecraftFormatCodes.RESET)
+        for (const enchantment in enchantments) {
+            const enchantmentData = enchantments[enchantment];
+            const enchantmentTitle = enchantmentTitles[enchantmentData.name] || enchantmentData.name + "-failed"
+
+            const displayLength = removeFormat(enchantmentTitle + " " + enchantmentData.level).length;
+            const displaySpaces = longestText.length - displayLength;
+            const newTitle = " ".repeat(Math.floor(displaySpaces / 2 + 0.5) + 3) + enchantmentTitle + " " + enchantmentData.level;
+            this.addLore(newTitle);
+        }
+
+        // Item Effects
+        const effects = this.getEffects(); // return if no effects
+        if (Object.keys(effects).length === 0) return;
+
+        let effectSpacing = longestText.length - ("Effects".length);
+        this.addLore(" ".repeat(Math.floor(effectSpacing / 2) + 1) + MinecraftFormatCodes.BOLD + "Effects" + MinecraftFormatCodes.RESET);
+
+        for (const effect in effects) {
+            const effectData = effects[effect] as ItemEffectDataT;
+            const displayLength = removeFormat(effectData.title).length;
+            const displaySpaces = longestText.length - displayLength;
+            const newTitle = " ".repeat(Math.floor(displaySpaces / 2 + 0.5) + 3) + effectData.title;
+            this.addLore(newTitle);
+        }
+
+        this.updateItem();
+    }
 }

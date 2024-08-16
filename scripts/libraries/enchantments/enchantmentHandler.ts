@@ -1,5 +1,4 @@
 import { EntityComponentTypes, EntityEquippableComponent, EntityInventoryComponent, EquipmentSlot, ItemStack, Player } from "@minecraft/server";
-import { addCustomEnchantment, ItemDataHandler, updateLore } from "../data/item/itemData";
 import { ActionFormData } from "@minecraft/server-ui";
 
 import { fortuneData } from "./fortune";
@@ -9,6 +8,7 @@ import { xpboostData } from "./xpboost";
 import { EnchantmentPurchaseT } from "../../types";
 import { abbreviateMoney, getPlayerMoney, setPlayerMoney } from "../data/player/money";
 import { chatError, chatSuccess, MinecraftColors } from "../chatFormat";
+import { ItemData } from "../data/item/itemData";
 
 const enchantments: { [key: string]: EnchantmentPurchaseT } = {
     "fortune": fortuneData,
@@ -22,20 +22,6 @@ export const enchantmentTitles: { [key: string]: string } = {
     "luck1": MinecraftColors.GREEN + "Luck I",
     "luck2": MinecraftColors.DARK_GREEN + "Luck II",
     "xpboost": MinecraftColors.LIGHT_PURPLE + "XP Boost",
-}
-
-// Function to get the player's enchantment level
-export function getEnchantmentLevel(player: Player, enchantment: string, playerItem: ItemStack): number {
-    const enchantmentData = (ItemDataHandler.get("enchantments", playerItem) as any) || {};
-    return enchantmentData[enchantment]?.level || 0;
-}
-
-// Function to set the player's enchantment level
-export function setEnchantmentLevel(player: Player, enchantment: string, level: number, playerItem: ItemStack): void {
-    const enchantmentData = (ItemDataHandler.get("enchantments", playerItem) as any) || {};
-
-    enchantmentData[enchantment].level = level;
-    ItemDataHandler.set("enchantments", enchantmentData, playerItem, player);
 }
 
 let specialTypes: { [key: string]: MinecraftColors } = {
@@ -57,9 +43,11 @@ export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): vo
         .title(`§5§lEnchantment Menu - §r${itemColor}${playerItem.nameTag || playerItem.typeId.replace("minecraft:", "").split("_").map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")}`)
         .body("§eSelect an §5§lenchantment §r§eto §eupgrade\n");
 
+    let itemData = new ItemData(playerItem, player);
+    let itemEnchantments = itemData.getEnchantments();
     for (const enchantment in enchantments) {
         let enchantmentData = enchantments[enchantment];
-        const currentLevel = getEnchantmentLevel(player, enchantmentData.name, playerItem);
+        const currentLevel = itemEnchantments[enchantment].level || 0;
         const baseCost = enchantmentData.baseCost;
         const costIncrease = enchantmentData.costIncrease;
         const enchantmentCost = baseCost + (currentLevel * costIncrease);
@@ -72,7 +60,7 @@ export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): vo
         if (!response.selection && response.selection !== 0) return;
 
         const selectedEnchantment = Object.keys(enchantments)[response.selection];
-        const currentLevel = getEnchantmentLevel(player, selectedEnchantment, playerItem);
+        const currentLevel = itemEnchantments[selectedEnchantment].level || 0;
         let playerMoney = getPlayerMoney(player);
 
         let enchantmentData = enchantments[selectedEnchantment];
@@ -116,17 +104,18 @@ export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): vo
                 setPlayerMoney(player, playerMoney - enchantmentCosts);
 
                 if (currentLevel === 0) {
-                    addCustomEnchantment(player, playerItem, {
+                    itemData.addEnchantment({
                         name: selectedEnchantment,
-                        currentDisplayName: enchantmentData.title,
                         level: 1,
                     });
                 } else {
-                    setEnchantmentLevel(player, selectedEnchantment, currentLevel + 1, playerItem);
+                    itemData.addEnchantment({
+                        name: selectedEnchantment,
+                        level: currentLevel + 1,
+                    });
                 }
 
                 chatSuccess(player, `${enchantmentData.title} §r§aincreased to level §l${currentLevel + 1}!`);
-                updateLore(player, playerItem);
             } else {
                 chatError(player, "You do not have enough money to purchase this enchantment.");
             }

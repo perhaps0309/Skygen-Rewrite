@@ -1,5 +1,5 @@
 import { EntityEffectOptions, Player, system } from "@minecraft/server";
-import { EffectDataT, MinecraftDynamicPropertyT, PlayerDataT } from "../../../types";
+import { EffectDataT, MinecraftDynamicPropertyT } from "../../../types";
 import { PlayerDataHandler } from "./playerData";
 import { playersData } from "../../../main";
 
@@ -14,29 +14,32 @@ import { playersData } from "../../../main";
     }
 */
 
-export function applyEffectProperties(playerData: PlayerDataT) {
-    const playerName = playerData.player.name;
-    const effectKeys = Object.keys(playerData.effects);
+export function applyEffectProperties(player: Player) {
+    const playerName = player.name;
+    const playerData = playersData[playerName];
+    const playerEffects = playerData.getEffects();
+    const effectNames = Object.keys(playerEffects);
 
     // Check if the player's current effect index is undefined or too large and reset it.
-    if (playerData.effectIndex == undefined || playerData.effectIndex > effectKeys.length - 1) {
-        playerData.effectIndex = 0;
+    let effectIndex = playerData.getEffectIndex();
+    if (effectIndex > effectNames.length - 1) {
+        effectIndex = 0;
+        playerData.setEffectIndex(effectIndex);
     }
 
     // Get the effect data for the effect currently being displayed then display it
-    const effectData = playerData.effects[effectKeys[playerData.effectIndex]] as EffectDataT;
+    const effectData = playerEffects[effectNames[effectIndex]];
     if (effectData) {
         playerData.player.dimension.runCommand(`/title "${playerName}" actionbar ${effectData.title} - ${effectData.duration - (Math.round((system.currentTick - effectData.startTime) / 20))}s`);
     }
 
-    for (const effect of effectKeys) {
+    for (const effectName of effectNames) {
         // Get effect data and setup the effect's options using EntityEffectOptions
-        const effectData = playerData.effects[effect] as EffectDataT;
+        const effectData = playerEffects[effectName] as EffectDataT;
 
         // Check if expired
         if (system.currentTick - effectData.startTime > effectData.duration * 20) {
-            delete playerData.effects[effect];
-            PlayerDataHandler.set("effects", playerData.effects, playerData.player);
+            playerData.removeEffect(effectName);
             continue;
         }
 
@@ -60,17 +63,17 @@ export function applyEffectProperties(playerData: PlayerDataT) {
         const player = playerData.player;
         player.addEffect(effectData.effect, effectData.duration * 20, entityOptions);
         effectData.applied = true;
-        playerData.effects[effect] = effectData;
-        PlayerDataHandler.set("effects", playerData.effects, player);
+        playerData.addEffect(effectName, effectData);
     }
 }
 
-export function rotateEffectTitles(playerData: PlayerDataT) {
-    const player = playerData.player;
-    const effectKeys = Object.keys(playerData.effects);
-    if (playerData.effectIndex === undefined || playerData.effectIndex + 1 > effectKeys.length) playerData.effectIndex = 0;
+export function rotateEffectTitles(player: Player) {
+    const playerData = playersData[player.name];
+    const effectKeys = Object.keys(playerData.getEffects());
+    const effectIndex = playerData.getEffectIndex();
+    if (effectIndex + 1 > effectKeys.length) {
+        playerData.setEffectIndex(0);
+    }
 
-    playerData.effectIndex++;
-    PlayerDataHandler.set("effects", playerData.effects, player);
-    PlayerDataHandler.set("effectIndex", playerData.effectIndex, player);
+    playerData.setEffectIndex(effectIndex + 1);
 }
