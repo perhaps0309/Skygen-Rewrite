@@ -1,7 +1,7 @@
 import { world, system, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot, ItemStack, ItemDurabilityComponent, EntityInventoryComponent } from "@minecraft/server";
 import { telekinesisAfterBreak } from "./events/afterEvents/playerBreakBlock";
-import { getPlayerFromName, PlayerData, PlayerDataHandler } from "./libraries/data/player/playerData";
-import { ItemData } from "./libraries/data/item/itemData";
+import { getPlayerFromName, PlayerData } from "./libraries/data/player/playerData";
+import { ItemData } from "./libraries/data/item/ItemData";
 import { MinecraftColors } from "./libraries/chatFormat";
 import { applyEffectProperties, rotateEffectTitles } from "./libraries/data/player/effects";
 import { setPlayerMoney } from "./libraries/data/player/money";
@@ -9,12 +9,21 @@ import { handlePlayerJoin } from "./events/afterEvents/playerJoin";
 import { chatSend } from "./events/beforeEvents/chatSend";
 import { playerSpawn } from "./events/afterEvents/playerSpawn";
 import { checkIfPlot } from "./events/beforeEvents/checkIfPlot";
-import { handleAdminStick, handleGeneratorCreation } from "./events/beforeEvents/ItemUseOn";
+import { handleAdminStick } from "./events/beforeEvents/ItemUseOn";
 import { openEnchantmentMenu } from "./libraries/enchantments/enchantmentHandler";
+import { handleShopInteraction } from "./events/beforeEvents/entityHandler";
 
-// Create a new PlayerData class instance once a user first spawns and keep it for later.
+// Create a new PlayerData class instance for every player currently in the server.
+// This is mainly to support reloading.
 export const playersData: { [key: string]: PlayerData } = {};
+const allPlayers = world.getAllPlayers();
+for (const player of allPlayers) {
+	playersData[player.name] = new PlayerData(player);
+}
+
+world.beforeEvents.playerInteractWithEntity.subscribe(handleShopInteraction)
 world.afterEvents.playerSpawn.subscribe((event) => {
+	// Create a PlayerData class for anyone who spawns in for the first time.
 	if (!playersData[event.player.name]) {
 		playersData[event.player.name] = new PlayerData(event.player);
 	}
@@ -28,7 +37,6 @@ world.afterEvents.playerLeave.subscribe((event) => {
 });
 
 world.beforeEvents.chatSend.subscribe(chatSend);
-world.beforeEvents.itemUseOn.subscribe(handleGeneratorCreation);
 world.beforeEvents.itemUse.subscribe((event) => {
 	// @TODO: Handle compass menu aswell
 	handleAdminStick(event);
@@ -70,11 +78,13 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 	// Testing
 	switch (block.type.id) {
 		case "minecraft:gold_block": {
-			let itemData = new ItemData(item, player)
+			let itemData = new ItemData(item, player, EquipmentSlot.Mainhand);
 			itemData.addEnchantment({
 				name: "fortune",
 				level: 23
 			})
+
+			itemData.updateItem();
 
 			// Give the player a coal generator chicken
 			const itemStack = new ItemStack("minecraft:stone", 1);

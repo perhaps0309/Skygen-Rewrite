@@ -11,7 +11,8 @@ import {
     ItemUseOnBeforeEvent,
     world,
     Vector3,
-    ItemUseBeforeEvent, // Add this line to import the Vector3 class
+    ItemUseBeforeEvent,
+    ItemLockMode, // Add this line to import the Vector3 class
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/data/generators/generatorData";
 import { removeFormat } from "../../libraries/chatFormat";
@@ -47,63 +48,22 @@ function tickSystem() {
 
 system.run(tickSystem);
 
-export function handleGeneratorCreation(event: ItemUseOnBeforeEvent) {
-    const player = event.source;
-    const item = event.itemStack;
-    const block = event.block;
-
-    // Check if player is a player, and is holding stone
-    if (!item) return;
-
-    // console.warn(!player, !item, item.typeId !== "minecraft:stone", block.typeId !== "minecraft:dirt")
-    if (!player || !item || item.typeId !== "minecraft:stone" || block.typeId !== "minecraft:dirt") return;
-
-    const itemLore = item.getLore()
-    if (!itemLore[0] || !itemLore[0].includes("generator")) return;
-
-    let generatorOp = itemLore[0].split(" generator")[0].split("a ")[1].split("generator")[0].replaceAll(" ", "");
-    let generatorType: string = removeFormat(generatorOp);
-    console.warn("genType", generatorType, generatorOp);
-
-    // Set the block to a repeating command block
-
-    event.cancel = true;
-    system.run(function () {
-        player.sendMessage(`Set a repeating command block to generate ${generatorType} at ${block.x}, ${block.y + 1}, ${block.z}`);
-        block.dimension.setBlockType(block, "minecraft:bedrock");
-
-        // Remove the item from the player's inventory
-        const playerInventory = event.source.getComponent("minecraft:inventory") as EntityInventoryComponent;
-        if (!playerInventory.container) return;
-
-        system.run(function () {
-            // Remove the item from the player's inventory if amount is 1
-            const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
-            if (playerInventory) {
-                const container = playerInventory.container;
-                if (!container) return;
-                for (let i = 0; i < container.size; i++) {
-                    const slot = container.getItem(i);
-                    if (slot && slot.typeId === item.typeId && slot.getLore()[0] === itemLore[0]) {
-                        container.setItem(i, new ItemStack("minecraft:air", 1));
-                        break;
-                    }
-                }
-            }
-        })
-
-        // Add the block to the genBlocks object
-        genBlocks[`${block.x},${block.y},${block.z}`] = genTypes[generatorType];
-    })
-}
-
 export function handleAdminStick(event: ItemUseBeforeEvent) {
     const player = event.source;
     const item = event.itemStack;
     if (!item) return;
-    if (item.typeId != "minecraft:stick") return;
+    if (item.typeId != "minecraft:stick" || !player.hasTag("AdminPerms")) return;
 
     system.run(() => {
         handleAdminMenu(player);
     });
+}
+
+export function handleCompass(event: ItemUseOnBeforeEvent) {
+    const player = event.source;
+    const item = event.itemStack;
+    if (!item) return;
+    if (item.typeId != "minecraft:compass" || item.lockMode !== ItemLockMode.slot) return; // Check if the item is a compass and is locked
+
+
 }

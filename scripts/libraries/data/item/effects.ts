@@ -1,3 +1,3 @@
-export const ItemEffects = {
-    "haste": "§eHaste"
+export const ItemEffects: { [key: string]: string } = {
+    haste: "§eHaste",
 }

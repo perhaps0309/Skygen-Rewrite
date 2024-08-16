@@ -8,7 +8,7 @@ import { xpboostData } from "./xpboost";
 import { EnchantmentPurchaseT } from "../../types";
 import { abbreviateMoney, getPlayerMoney, setPlayerMoney } from "../data/player/money";
 import { chatError, chatSuccess, MinecraftColors } from "../chatFormat";
-import { ItemData } from "../data/item/itemData";
+import { ItemData } from "../data/item/ItemData";
 
 const enchantments: { [key: string]: EnchantmentPurchaseT } = {
     "fortune": fortuneData,
@@ -35,7 +35,7 @@ let specialTypes: { [key: string]: MinecraftColors } = {
     "chainmail": MinecraftColors.WHITE,
 }
 
-export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): void {
+export function handleEnchantmentMenu(player: Player, playerItem: ItemStack, playerSlot: EquipmentSlot | number): void {
     let itemType = playerItem.typeId
     let itemMaterial = itemType.split(":")[1].split("_")[0]
     let itemColor = specialTypes[itemMaterial] || MinecraftColors.WHITE
@@ -43,11 +43,12 @@ export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): vo
         .title(`§5§lEnchantment Menu - §r${itemColor}${playerItem.nameTag || playerItem.typeId.replace("minecraft:", "").split("_").map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")}`)
         .body("§eSelect an §5§lenchantment §r§eto §eupgrade\n");
 
-    let itemData = new ItemData(playerItem, player);
+    let itemData = new ItemData(playerItem, player, playerSlot);
     let itemEnchantments = itemData.getEnchantments();
     for (const enchantment in enchantments) {
         let enchantmentData = enchantments[enchantment];
-        const currentLevel = itemEnchantments[enchantment].level || 0;
+
+        const currentLevel = itemEnchantments[enchantment]?.level || 0;
         const baseCost = enchantmentData.baseCost;
         const costIncrease = enchantmentData.costIncrease;
         const enchantmentCost = baseCost + (currentLevel * costIncrease);
@@ -60,7 +61,7 @@ export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): vo
         if (!response.selection && response.selection !== 0) return;
 
         const selectedEnchantment = Object.keys(enchantments)[response.selection];
-        const currentLevel = itemEnchantments[selectedEnchantment].level || 0;
+        const currentLevel = itemEnchantments[selectedEnchantment]?.level || 0;
         let playerMoney = getPlayerMoney(player);
 
         let enchantmentData = enchantments[selectedEnchantment];
@@ -113,6 +114,11 @@ export function handleEnchantmentMenu(player: Player, playerItem: ItemStack): vo
                         name: selectedEnchantment,
                         level: currentLevel + 1,
                     });
+
+                    itemData.addEffect({
+                        name: "haste",
+                        level: currentLevel + 1,
+                    })
                 }
 
                 chatSuccess(player, `${enchantmentData.title} §r§aincreased to level §l${currentLevel + 1}!`);
@@ -185,10 +191,9 @@ export function openEnchantmentMenu(player: Player): void {
             const selectedSlot = response.selection;
             playerItem = storedItems[selectedSlot];
 
-
-            handleEnchantmentMenu(player, playerItem);
+            handleEnchantmentMenu(player, playerItem, selectedSlot);
         });
     } else {
-        handleEnchantmentMenu(player, playerItem);
+        handleEnchantmentMenu(player, playerItem, EquipmentSlot.Mainhand);
     }
 }

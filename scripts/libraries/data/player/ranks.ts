@@ -1,5 +1,4 @@
 import { Player } from "@minecraft/server";
-import { PlayerDataHandler } from "./playerData";
 import { MinecraftColors } from "../../chatFormat";
 import { playersData } from "../../../main";
 

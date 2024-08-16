@@ -1,6 +1,6 @@
 import { ChatSendBeforeEvent, EntityInventoryComponent, ItemLockMode, Player, system, world } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
-import { getPlayerFromName, PlayerDataHandler } from "../../data/player/playerData";
+import { getPlayerFromName } from "../../data/player/playerData";
 import { chatError } from "../../chatFormat";
 
 export default {

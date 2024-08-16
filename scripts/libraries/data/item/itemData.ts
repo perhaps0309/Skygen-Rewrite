@@ -3,15 +3,21 @@ import { EffectDataT, EnchantmentDataT, ItemEffectDataT } from "../../../types";
 import { MinecraftFormatCodes, removeFormat } from "../../chatFormat";
 import { enchantmentTitles } from "../../enchantments/enchantmentHandler";
 import { safeJsonParser, safeJsonStringify } from "../player/playerData";
+import { ItemEffects } from "./effects";
+
+function debugWarn(functionName: string, message: string) {
+    console.warn(`[ItemData.${functionName}] ${message}`);
+}
 
 export class ItemData {
     public item: ItemStack;
-    //public slot: EquipmentSlot | number;
+    public slot: EquipmentSlot | number | undefined;
     private player: Player;
 
-    constructor(item: ItemStack, player: Player) {
+    constructor(item: ItemStack, player: Player, slot?: EquipmentSlot | number) {
         this.item = item;
         this.player = player;
+        this.slot = slot; // You need to set the slot for anything besides lore adjustments.
     }
 
     public getDynamicProperty(key: string): any {
@@ -106,7 +112,7 @@ export class ItemData {
 
     // Dynamic property functions
     public updateItem(): void {
-        /*
+        if (this.slot === undefined) return;
         if (typeof this.slot === "number") {
             const inventory = this.player.getComponent("minecraft:inventory") as EntityInventoryComponent;
             const container = inventory.container;
@@ -120,7 +126,6 @@ export class ItemData {
             const playerEquipment = this.player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent
             playerEquipment.setEquipment(this.slot, this.item);
         }
-        */
     }
 
     public updateLore(): void {
@@ -128,10 +133,7 @@ export class ItemData {
         let enchantments = this.getEnchantments();
 
         // Remove the old lore
-        const currentLore = this.getLore();
-        currentLore.forEach((lore, index) => {
-            this.removeLore(index);
-        });
+        this.setLore([]);
 
         let enchantmentSpacing = longestText.length - ("Enchantments".length);
         this.addLore(" ".repeat(Math.floor(enchantmentSpacing / 2) + 1) + MinecraftFormatCodes.BOLD + "Enchantments" + MinecraftFormatCodes.RESET)
@@ -154,9 +156,11 @@ export class ItemData {
 
         for (const effect in effects) {
             const effectData = effects[effect] as ItemEffectDataT;
-            const displayLength = removeFormat(effectData.title).length;
+
+            let effectTitle = ItemEffects[effectData.name] || effectData.name + "-failed";
+            const displayLength = removeFormat(effectTitle).length;
             const displaySpaces = longestText.length - displayLength;
-            const newTitle = " ".repeat(Math.floor(displaySpaces / 2 + 0.5) + 3) + effectData.title;
+            const newTitle = " ".repeat(Math.floor(displaySpaces / 2 + 0.5) + 3) + effectTitle;
             this.addLore(newTitle);
         }
 

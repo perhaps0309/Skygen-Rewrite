@@ -8,7 +8,7 @@ import {
     system,
 } from "@minecraft/server";
 import { validBlockTypes, toolTypes } from "../../libraries/data/generators/generatorData";
-import { ItemData } from "../../libraries/data/item/itemData";
+import { ItemData } from "../../libraries/data/item/ItemData";
 import { EffectDataT, EnchantmentDataT } from "../../types";
 import { playersData } from "../../main";
 
