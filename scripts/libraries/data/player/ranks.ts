@@ -1,6 +1,7 @@
 import { Player } from "@minecraft/server";
 import { PlayerDataHandler } from "./playerData";
 import { MinecraftColors } from "../../chatFormat";
+import { playersData } from "../../../main";
 
 export const rankPriority: { [key: string]: number } = {
     "none": 0, // Default rank for all players
@@ -17,12 +18,7 @@ export const rankColors: { [key: string]: string } = {
 }
 
 export function getHighestRank(player: Player) {
-    let playerRanks = PlayerDataHandler.get("ranks", player) as unknown as { [key: string]: number };
-    if (!playerRanks) {
-        playerRanks = { "Member": 0 }
-        PlayerDataHandler.set("ranks", playerRanks, player);
-    }
-
+    let playerRanks = playersData[player.name].getRanks();
     let playerRank = "";
     let highestPriority = 0;
     for (const rank in playerRanks) {

@@ -4,7 +4,7 @@ import { PlayerData, PlayerDataHandler } from "./libraries/data/player/playerDat
 import { addCustomEnchantment, removeCustomEnchantment, updateLore } from "./libraries/data/item/itemData";
 import { MinecraftColors } from "./libraries/chatFormat";
 import { PlayerDataT } from "./types";
-import { addEffect, applyEffectProperties, rotateEffectTitles } from "./libraries/data/player/effects";
+import { applyEffectProperties, rotateEffectTitles } from "./libraries/data/player/effects";
 import { setPlayerMoney } from "./libraries/data/player/money";
 import { handlePlayerJoin } from "./events/afterEvents/playerJoin";
 import { chatSend } from "./events/beforeEvents/chatSend";
@@ -14,10 +14,10 @@ import { handleAdminStick, handleGeneratorCreation } from "./events/beforeEvents
 import { openEnchantmentMenu } from "./libraries/enchantments/enchantmentHandler";
 
 // Create a new PlayerData class instance once a user first spawns and keep it for later.
-export const playerData: { [key: string]: PlayerData } = {};
+export const playersData: { [key: string]: PlayerData } = {};
 world.afterEvents.playerSpawn.subscribe((event) => {
-	if (!playerData[event.player.name]) {
-		playerData[event.player.name] = new PlayerData(event.player);
+	if (!playersData[event.player.name]) {
+		playersData[event.player.name] = new PlayerData(event.player);
 	}
 
 	handlePlayerJoin(event);
@@ -25,7 +25,7 @@ world.afterEvents.playerSpawn.subscribe((event) => {
 });
 
 world.afterEvents.playerLeave.subscribe((event) => {
-	delete playerData[event.playerName];
+	delete playersData[event.playerName];
 });
 
 world.beforeEvents.chatSend.subscribe(chatSend);
@@ -63,6 +63,7 @@ world.beforeEvents.playerBreakBlock.subscribe((event) => {
 
 
 world.afterEvents.playerBreakBlock.subscribe((event) => {
+	const player = event.player;
 	const block = event.brokenBlockPermutation;
 	const item = event.itemStackAfterBreak;
 	if (!item) return;
@@ -70,45 +71,45 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 	// Testing
 	switch (block.type.id) {
 		case "minecraft:gold_block": {
-			addCustomEnchantment(event.player, item, {
+			addCustomEnchantment(player, item, {
 				name: "fortune",
 				currentDisplayName: MinecraftColors.AQUA + "Fortune",
 				level: 8,
 			});
 
-			addCustomEnchantment(event.player, item, {
+			addCustomEnchantment(player, item, {
 				name: "luck1",
 				currentDisplayName: MinecraftColors.GREEN + "Luck I",
 				level: 23,
 			});
 
-			addCustomEnchantment(event.player, item, {
+			addCustomEnchantment(player, item, {
 				name: "luck2",
 				currentDisplayName: MinecraftColors.DARK_GREEN + "Luck II",
 				level: 4,
 			});
 
-			addCustomEnchantment(event.player, item, {
+			addCustomEnchantment(player, item, {
 				name: "xpboost",
 				currentDisplayName: MinecraftColors.LIGHT_PURPLE + "XP Boost",
 				level: 7,
 			});
 
-			updateLore(event.player, item);
+			updateLore(player, item);
 
 			// Give the player a coal generator chicken
 			const itemStack = new ItemStack("minecraft:stone", 1);
 			itemStack.nameTag = MinecraftColors.DARK_GRAY + "Coal" + " §r§fGenerator";
 			itemStack.keepOnDeath = true;
 			itemStack.setLore([MinecraftColors.GRAY + "Right-click to spawn a §8coal §7generator"]);
-			const playerInventory = event.player.getComponent("minecraft:inventory") as EntityInventoryComponent;
+			const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
 			if (!playerInventory.container) return;
 
 			playerInventory.container.addItem(itemStack);
 			break;
 		}
 		case "minecraft:redstone_block": {
-			removeCustomEnchantment(event.player, item, "fortune");
+			removeCustomEnchantment(player, item, "fortune");
 			break;
 		}
 		case "minecraft:emerald_block": {
@@ -119,16 +120,16 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 				durabilityComponent.damage = 0;
 			}
 
-			const playerEquipment = event.player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
+			const playerEquipment = player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
 
 			playerEquipment.setEquipment(EquipmentSlot.Mainhand, item);
 
 			// Clear effects
-			PlayerDataHandler.set("effects", {}, event.player);
+			playersData[player.name].removeAllEffects();
 
-			let playerEffects = event.player.getEffects();
+			let playerEffects = player.getEffects();
 			playerEffects.forEach((effect) => {
-				event.player.removeEffect(effect.typeId);
+				player.removeEffect(effect.typeId);
 			});
 
 			break;
@@ -179,14 +180,15 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 				applied: false,
 			};
 
-			addEffect(event.player, newHaste);
-			addEffect(event.player, newNightVision);
-			addEffect(event.player, newDoubleDrops);
-			addEffect(event.player, newLuck);
+			const playerData = playersData[player.name];
+			playerData.addEffect(newHaste.effect, newHaste);
+			playerData.addEffect(newNightVision.effect, newNightVision);
+			playerData.addEffect(newDoubleDrops.effect, newDoubleDrops);
+			playerData.addEffect(newLuck.effect, newLuck);
 			break;
 		}
 		case "minecraft:coal_block": {
-			setPlayerMoney(event.player, 100000);
+			setPlayerMoney(player, 100000);
 			break;
 		}
 	}

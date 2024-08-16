@@ -35,7 +35,6 @@ export type PlayerDataT = {
 
 export type EnchantmentDataT = {
     name: string;
-    currentDisplayName: string;
     level: number;
     [key: string]: any;
 }

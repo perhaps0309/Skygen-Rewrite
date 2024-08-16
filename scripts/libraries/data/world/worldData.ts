@@ -47,5 +47,16 @@ export const WorldDataHandler = {
 };
 
 export class WorldData {
+    private world: World;
+    constructor(world: World) {
+        this.world = world;
+    }
 
+    public getDynamicProperty(key: string): any {
+        return this.world.getDynamicProperty(key);
+    }
+
+    public setDynamicProperty(key: string, value: any): void {
+        this.world.setDynamicProperty(key, value);
+    }
 }

@@ -108,13 +108,4 @@ export function handleAdminStick(event: ItemUseBeforeEvent) {
     system.run(() => {
         handleAdminMenu(player);
     });
-
-    let adminSelections = PlayerDataHandler.get("AdminSelections", player) as unknown as AdminSelectionT;
-    if (!adminSelections) {
-        adminSelections = {
-            firstSelection: undefined,
-            secondSelection: undefined
-        }
-        PlayerDataHandler.set("AdminSelections", adminSelections, player);
-    }
 }

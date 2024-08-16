@@ -17,6 +17,13 @@ const enchantments: { [key: string]: EnchantmentPurchaseT } = {
     "xpboost": xpboostData,
 };
 
+export const enchantmentTitles: { [key: string]: string } = {
+    "fortune": MinecraftColors.AQUA + "Fortune",
+    "luck1": MinecraftColors.GREEN + "Luck I",
+    "luck2": MinecraftColors.DARK_GREEN + "Luck II",
+    "xpboost": MinecraftColors.LIGHT_PURPLE + "XP Boost",
+}
+
 // Function to get the player's enchantment level
 export function getEnchantmentLevel(player: Player, enchantment: string, playerItem: ItemStack): number {
     const enchantmentData = (ItemDataHandler.get("enchantments", playerItem) as any) || {};

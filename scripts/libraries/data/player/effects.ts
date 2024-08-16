@@ -1,6 +1,7 @@
 import { EntityEffectOptions, Player, system } from "@minecraft/server";
 import { EffectDataT, MinecraftDynamicPropertyT, PlayerDataT } from "../../../types";
 import { PlayerDataHandler } from "./playerData";
+import { playersData } from "../../../main";
 
 /*
     Example data:
@@ -12,11 +13,6 @@ import { PlayerDataHandler } from "./playerData";
         startTime: system.currentTick
     }
 */
-export function addEffect(player: Player, newEffectData: EffectDataT) {
-    const playerEffects = PlayerDataHandler.get("effects", player) as unknown as { [key: string]: MinecraftDynamicPropertyT } || {};
-    playerEffects[newEffectData.effect] = newEffectData;
-    PlayerDataHandler.set("effects", playerEffects, player);
-}
 
 export function applyEffectProperties(playerData: PlayerDataT) {
     const playerName = playerData.player.name;
