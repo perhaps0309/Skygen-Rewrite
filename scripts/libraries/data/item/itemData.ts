@@ -63,6 +63,20 @@ export class ItemData {
         this.setLore(currentLore);
     }
 
+    public addCustomLore(lore: string | string[], category?: string): void {
+        let customLore = this.getDynamicProperty("lore") || {};
+        const index = typeof lore === "string" ? lore : lore[0];
+        customLore[category || index] = lore;
+        this.setDynamicProperty("lore", customLore);
+    }
+
+    public removeCustomLore(lore: string | string[], category?: string): void {
+        let customLore = this.getDynamicProperty("lore") || {};
+        const index = typeof lore === "string" ? lore : lore[0];
+        delete customLore[category || index];
+        this.setDynamicProperty("lore", customLore);
+    }
+
     // Enchantment functions
     public getEnchantments(): { [key: string]: EnchantmentDataT } {
         return this.getDynamicProperty("enchantments") || {};
@@ -134,6 +148,26 @@ export class ItemData {
 
         // Remove the old lore
         this.setLore([]);
+
+        // Get custom item lore data with spaces saved for centering
+        let customLore = this.getDynamicProperty("lore") || {}; // either category with an array of strings or a string
+        for (const key in customLore) {
+            let currentLore = customLore[key];
+            if (typeof currentLore === "string") {
+                const displayLength = removeFormat(currentLore).length;
+                const displaySpaces = longestText.length - displayLength;
+                const newTitle = " ".repeat(Math.floor(displaySpaces / 2 + 0.5) + 3) + currentLore;
+                this.addLore(newTitle);
+            } else {
+                this.addLore(" ".repeat(Math.floor(longestText.length / 2 + 0.5) + 3) + MinecraftFormatCodes.BOLD + key + MinecraftFormatCodes.RESET)
+                currentLore.forEach((line: string) => {
+                    const displayLength = removeFormat(line).length;
+                    const displaySpaces = longestText.length - displayLength;
+                    const newTitle = " ".repeat(Math.floor(displaySpaces / 2 + 0.5) + 3) + line;
+                    this.addLore(newTitle);
+                });
+            }
+        }
 
         let enchantmentSpacing = longestText.length - ("Enchantments".length);
         this.addLore(" ".repeat(Math.floor(enchantmentSpacing / 2) + 1) + MinecraftFormatCodes.BOLD + "Enchantments" + MinecraftFormatCodes.RESET)

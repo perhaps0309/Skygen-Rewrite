@@ -33,16 +33,17 @@ export type ItemEffectDataT = {
 }
 
 export type EnchantmentPurchaseT = {
+    name: string;
     title: string;
     description: string;
-    name: string;
     baseCost: number;
-    costIncrease: number;
     effectTitle: string; // "more damage", "more drops",
     effectType: string; // "percent", "flat"
     effectAmount: number;
     effectSymbol?: string;
     maxLevel?: number;
+    applicable?: string[]; // "pickaxe", "axe", "shovel", "sword", "bow", "armor", "tool", "hoe"
+    rarity: string; // "common", "uncommon", "rare", "epic", "legendary"
 }
 
 export type PlotT = {
@@ -53,4 +54,14 @@ export type PlotT = {
 export type AdminSelectionT = {
     firstSelection: Vector3 | undefined;
     secondSelection: Vector3 | undefined;
+}
+
+export type GeneratorDataT = {
+    type: string;
+    upgrades: { cooldown: number, dropsMultiplier: number, luck: number };
+    level: number;
+    maxLevel: number;
+    autoMiner: { speed: number, cooldown: number, storage: number };
+    position: Vector3;
+    owner: Player;
 }

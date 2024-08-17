@@ -1,15 +1,15 @@
 import { EnchantmentPurchaseT } from "../../types";
 
-const xpboostData: EnchantmentPurchaseT = {
-    title: "§d§lXP Boost",
+const xpboost2Data: EnchantmentPurchaseT = {
+    title: "§5§lEnlightment II",
     description: "§6Increases the amount of XP gained per block broken",
-    name: "xpboost",
-    baseCost: 75000,
-    costIncrease: 10,
+    name: "xpboost2",
+    baseCost: 500000,
     effectTitle: "%% XP gained",
     effectType: "percent",
     effectAmount: 25,
     effectSymbol: "+",
+    rarity: "epic"
 }
 
-export { xpboostData };
+export { xpboost2Data };

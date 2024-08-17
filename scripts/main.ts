@@ -12,6 +12,8 @@ import { checkIfPlot } from "./events/beforeEvents/checkIfPlot";
 import { handleAdminStick } from "./events/beforeEvents/ItemUseOn";
 import { openEnchantmentMenu } from "./libraries/enchantments/enchantmentHandler";
 import { handleShopInteraction } from "./events/beforeEvents/entityHandler";
+import { createGeneratorItem } from "./libraries/data/world/generators";
+import { Vector3Builder } from "@minecraft/math";
 
 // Create a new PlayerData class instance for every player currently in the server.
 // This is mainly to support reloading.
@@ -86,15 +88,25 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 
 			itemData.updateItem();
 
-			// Give the player a coal generator chicken
-			const itemStack = new ItemStack("minecraft:stone", 1);
-			itemStack.nameTag = MinecraftColors.DARK_GRAY + "Coal" + " §r§fGenerator";
-			itemStack.keepOnDeath = true;
-			itemStack.setLore([MinecraftColors.GRAY + "Right-click to spawn a §8coal §7generator"]);
+			let generatorItem = createGeneratorItem("coal_ore", 1, player, {
+				type: "coal_ore",
+				upgrades: { cooldown: 1, dropsMultiplier: 1, luck: 1 },
+				level: 1,
+				maxLevel: 10,
+				position: new Vector3Builder({ x: 0, y: 0, z: 0 }),
+				autoMiner: {
+					speed: 0,
+					cooldown: 0,
+					storage: 0
+				},
+				owner: player
+			});
+
 			const playerInventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent;
 			if (!playerInventory.container) return;
 
-			playerInventory.container.addItem(itemStack);
+			playerInventory.container.addItem(generatorItem);
+
 			break;
 		}
 		case "minecraft:redstone_block": {
