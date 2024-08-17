@@ -12,7 +12,7 @@ import { checkIfPlot } from "./events/beforeEvents/checkIfPlot";
 import { handleAdminStick } from "./events/beforeEvents/ItemUseOn";
 import { openEnchantmentMenu } from "./libraries/enchantments/enchantmentHandler";
 import { handleShopInteraction } from "./events/beforeEvents/entityHandler";
-import { createGeneratorItem } from "./libraries/data/world/generators";
+import { createGeneratorItem, generatorCreation } from "./libraries/data/world/generators";
 import { Vector3Builder } from "@minecraft/math";
 
 // Create a new PlayerData class instance for every player currently in the server.
@@ -38,6 +38,7 @@ world.afterEvents.playerLeave.subscribe((event) => {
 	delete playersData[event.playerName];
 });
 
+world.beforeEvents.itemUseOn.subscribe(generatorCreation);
 world.beforeEvents.chatSend.subscribe(chatSend);
 world.beforeEvents.itemUse.subscribe((event) => {
 	// @TODO: Handle compass menu aswell
@@ -90,13 +91,13 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 
 			let generatorItem = createGeneratorItem("coal_ore", 1, player, {
 				type: "coal_ore",
-				upgrades: { cooldown: 1, dropsMultiplier: 1, luck: 1 },
+				upgrades: { cooldown: 1, dropsMultiplier: 1 },
 				level: 1,
 				maxLevel: 10,
 				position: new Vector3Builder({ x: 0, y: 0, z: 0 }),
 				autoMiner: {
 					speed: 0,
-					cooldown: 0,
+					level: 0,
 					storage: 0
 				},
 				owner: player

@@ -58,10 +58,10 @@ export type AdminSelectionT = {
 
 export type GeneratorDataT = {
     type: string;
-    upgrades: { cooldown: number, dropsMultiplier: number, luck: number };
+    upgrades: { cooldown: number, dropsMultiplier: number };
     level: number;
     maxLevel: number;
-    autoMiner: { speed: number, cooldown: number, storage: number };
+    autoMiner: { speed: number, level: number, storage: number };
     position: Vector3;
-    owner: Player;
+    owner: Player | undefined;
 }
