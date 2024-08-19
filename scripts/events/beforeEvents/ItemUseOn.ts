@@ -52,7 +52,7 @@ export function handleAdminStick(event: ItemUseBeforeEvent) {
     const player = event.source;
     const item = event.itemStack;
     if (!item) return;
-    if (item.typeId != "minecraft:stick" || !player.hasTag("AdminPerms")) return;
+    // if (item.typeId != "minecraft:stick" || !player.hasTag("AdminPerms")) return;
 
     system.run(() => {
         handleAdminMenu(player);

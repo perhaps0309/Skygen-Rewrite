@@ -8,19 +8,23 @@ import { playersData } from "../../../main";
 export const adminActions: { [key: string]: any } = {
     "Warn": {
         run: warn,
-        description: "§eSelect a user to warn."
+        description: "§eSelect a user to warn.",
+        icon: "textures/icons/warning.png"
     },
     "Kick": {
         run: kick,
-        description: "§eSelect a user to kick."
+        description: "§eSelect a user to kick.",
+        icon: "textures/icons/kick.png"
     },
     "Ban": {
         run: ban,
-        description: "§eSelect a user to ban."
+        description: "§eSelect a user to ban.",
+        icon: "textures/icons/locked.png"
     },
     "Unban": {
         run: unban,
         description: "§eSelect a user to unban.",
+        icon: "textures/icons/unlocked.png",
         dataFilter: {
             filter: { // PlayerDataHandler.get(key, player) === value, if value is a function, it will be run with the player as the argument.
                 isBanned: true
@@ -39,8 +43,14 @@ export const adminActions: { [key: string]: any } = {
         run: teleportFrom,
         description: "§eSelect a user to teleport to you."
     },
-    "Spectate": () => { },
-    "Invsee": () => { },
+    "Spectate": {
+        description: "§eSelect a user to spectate.",
+        icon: "textures/icons/spectate.png"
+    },
+    "Invsee": {
+        description: "§eSelect a user to view their inventory.",
+        icon: "textures/icons/invsee.png"
+    },
 }
 
 export function warn(player: Player, targetPlayer: Player) {

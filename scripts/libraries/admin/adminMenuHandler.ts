@@ -15,8 +15,14 @@ export function handleAdminMenu(player: Player) {
 
     const mappedActions: string[] = []
     for (const actionName in adminActions) {
+        const actionData = adminActions[actionName];
         mappedActions.push(actionName);
-        form.button(actionName);
+
+        if (actionData.icon) {
+            form.button(actionName, actionData.icon);
+        } else {
+            form.button(actionName);
+        }
     }
 
     // @ts-ignore
