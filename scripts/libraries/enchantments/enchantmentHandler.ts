@@ -8,7 +8,7 @@ import { xpboostData } from "./enlightment";
 import { EnchantmentPurchaseT } from "../../types";
 import { abbreviateLevel, abbreviateMoney, getPlayerMoney, setPlayerMoney } from "../data/player/money";
 import { chatError, chatSuccess, chatWarn, MinecraftColors } from "../chatFormat";
-import { ItemData } from "../data/item/ItemData";
+import { ItemData } from "../data/item/itemData";
 
 import { xpboost2Data } from "./enlightment2";
 import { blastMiningData } from "./blastmining";

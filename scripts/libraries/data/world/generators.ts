@@ -9,7 +9,7 @@ Generator level: 1/10
 
 import { EntityInventoryComponent, EquipmentSlot, ItemStack, ItemUseOnBeforeEvent, Player } from "@minecraft/server";
 import { GeneratorDataT } from "../../../types";
-import { ItemData } from "../item/ItemData";
+import { ItemData } from "../item/itemData";
 import { Vector3Builder } from "@minecraft/math";
 let generatorTitles: { [key: string]: string } = {
     "coal_ore": "§8Coal Generator"

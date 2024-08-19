@@ -1,7 +1,7 @@
 import { world, system, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot, ItemStack, ItemDurabilityComponent, EntityInventoryComponent } from "@minecraft/server";
 import { telekinesisAfterBreak } from "./events/afterEvents/playerBreakBlock";
 import { getPlayerFromName, PlayerData } from "./libraries/data/player/playerData";
-import { ItemData } from "./libraries/data/item/ItemData";
+import { ItemData } from "./libraries/data/item/itemData";
 import { MinecraftColors } from "./libraries/chatFormat";
 import { applyEffectProperties, rotateEffectTitles } from "./libraries/data/player/effects";
 import { setPlayerMoney } from "./libraries/data/player/money";
