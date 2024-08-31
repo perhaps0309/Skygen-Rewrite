@@ -1,0 +1,3 @@
+[submodule "scripts/util"]
+	path = scripts/util
+	url = https://github.com/perhaps0309/Minecraft-Bedrock-Data-Handlers.git
