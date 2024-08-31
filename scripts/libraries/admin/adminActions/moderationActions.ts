@@ -1,8 +1,10 @@
-import { Player, world } from "@minecraft/server";
-import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
+import { EntityInventoryComponent, Player, system, world } from "@minecraft/server";
+import { ActionFormData, FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
 import { MinecraftFormatCodes, MinecraftColors, chatSuccess } from "../../chatFormat";
 import { isAdmin } from "../../data/player/ranks";
-import { playersData } from "../../../main";
+import { ChestFormData, ChestSize } from "../../../util/scripts/functions/forms";
+import { getPlayerData } from "../../data/player/playerData";
+const potentialLetters = "abcdefghijklmnopqrstuvwxyz123456789"; // Used for chest
 
 // Holds all the functions that admins can perform from their admin stick.
 export const adminActions: { [key: string]: any } = {
@@ -65,18 +67,58 @@ function kick(player: Player, targetPlayer: Player) {
 }
 
 function ban(player: Player, targetPlayer: Player) {
-    playersData[player.name].setIsBanned(true);
+    getPlayerData(player.name).setIsBanned(true);
     chatSuccess(player, `Banned ${targetPlayer.name}.`);
 }
 
 function unban(player: Player, targetPlayer: Player) {
-    playersData[player.name].setIsBanned(false);
+    getPlayerData(player.name).setIsBanned(false);
     chatSuccess(player, `Unbanned ${targetPlayer.name}.`);
 }
 
 function teleportTo(player: Player, targetPlayer: Player) {
     player.teleport(targetPlayer.location);
     chatSuccess(player, `Teleported to ${targetPlayer.name}.`);
+}
+
+function invsee(player: Player, targetPlayer: Player) {
+    const chestUI = new ChestFormData(ChestSize.SIZE_54)
+        .title(`${targetPlayer.name}'s Inventory`);
+
+    // Create a basic layout for an auction house chest UI with glass panes and pages
+    chestUI.pattern(
+    [
+        'xxxxxxxxx',
+        'x_______x',
+        'x_______x',
+        'x_______x',
+        'x_______x',
+        'axxxxxxxb',
+        'axxxxxxxb',
+        'axxxxxxxb',
+        'axxxxxxxb',
+    ],
+    {
+        x: { itemName: '', itemDesc: [], texture: 'minecraft:stained_glass_pane', stackAmount: 1, enchanted: false },
+        a: { itemName: 'Previous Page', itemDesc: [], texture: 'minecraft:arrow', stackAmount: 1, enchanted: false },
+        b: { itemName: 'Next Page', itemDesc: [], texture: 'minecraft:arrow', stackAmount: 1, enchanted: false }
+    }
+    );
+
+
+    function showUI() {
+        chestUI.show(player).then(response => {
+            if (response.canceled && response.cancelationReason == FormCancelationReason.UserBusy) {
+                system.run(showUI) // Try again next tick
+            } else if (response.canceled) {
+                player.sendMessage("You closed the chest UI without taking any actions.");
+            } else { 
+                player.sendMessage("You interacted with the custom chest UI!");
+            }
+        });
+    }
+
+    showUI();
 }
 
 function teleportFrom(player: Player, targetPlayer: Player) {

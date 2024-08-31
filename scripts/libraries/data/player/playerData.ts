@@ -1,6 +1,111 @@
 import { world, Player, Vector3, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot } from "@minecraft/server";
 import { EffectDataT } from "../../../types";
 import { rankPriority } from "./ranks";
+import { PlayerData } from "../../../util/scripts/extensions/PlayerData";
+import { safeJsonParser, safeJsonStringify } from "../../../util/scripts/functions/json";
+
+const playersData: { [key: string]: SkygenPlayerData } = {};
+export function getPlayerData(playerName: string) {
+    return playersData[playerName];
+}
+
+export function hasPlayerData(playerName: string) {
+    return playersData[playerName] ? true : false;
+}
+
+export function deletePlayerData(playerName: string) {
+    delete playersData[playerName];
+}
+
+export class SkygenPlayerData extends PlayerData {
+    player: Player;
+
+    constructor(player: Player) {
+        super(player);
+        this.player = player;
+    }
+
+    getEffects(): { [key: string]: EffectDataT } {
+        const effects = (this.player.getDynamicProperty("effects") as string) || "{}";
+        return safeJsonParser(effects) as unknown as { [key: string]: EffectDataT } || {};
+    }
+
+    addEffect(effectName: string, effectData: EffectDataT) {
+        const effects = this.getEffects();
+        effects[effectName] = effectData;
+        this.player.setDynamicProperty("effects", safeJsonStringify(effects));
+    }
+
+    removeEffect(effectName: string) {
+        const effects = this.getEffects();
+        delete effects[effectName];
+        this.player.setDynamicProperty("effects", safeJsonStringify(effects));
+    }
+
+    removeAllEffects() {
+        this.player.setDynamicProperty("effects", "{}");
+    }
+
+    getEffectIndex() {
+        return this.player.getDynamicProperty("effectIndex") as number || 0;
+    }
+
+    setEffectIndex(newValue: number) {
+        this.player.setDynamicProperty("effectIndex", newValue);
+    }
+
+    getIsBanned() {
+        return this.player.getDynamicProperty("isBanned") || false;
+    }
+
+    setIsBanned(newValue: boolean) {
+        this.player.setDynamicProperty("isBanned", newValue);
+    }
+
+    getRanks(): { [key: string]: number } {
+        const ranks = (this.player.getDynamicProperty("ranks") as string) || `{ "Member": 0 }`;
+        return safeJsonParser(ranks) as unknown as { [key: string]: number } || {};
+    }
+
+    hasRank(rankName: string) {
+        const ranks = this.getRanks();
+        return ranks[rankName] ? true : false;
+    }
+
+    addRank(rankName: string) {
+        let rankP = rankPriority[rankName];
+        if (!rankPriority) throw Error("Invalid rank name.");
+
+        const ranks = this.getRanks();
+        ranks[rankName] = rankP;
+
+        this.player.setDynamicProperty("ranks", safeJsonStringify(ranks));
+    }
+
+    removeRank(rankName: string) {
+        const ranks = this.getRanks();
+        if (!ranks[rankName]) return;
+
+        delete ranks[rankName];
+        this.player.setDynamicProperty("ranks", safeJsonStringify(ranks));
+    }
+
+    getHasJoined() {
+        return this.player.getDynamicProperty("hasPlayerJoined") || false;
+    }
+
+    setHasJoined(newValue: boolean) {
+        this.player.setDynamicProperty("hasPlayerJoined", newValue);
+    }
+}
+
+// Creates a player's data 
+// Only creates the player's data class if they don't already have one
+export function createPlayerData(player: Player) {
+    if (!hasPlayerData(player.name)) {
+        playersData[player.name] = new SkygenPlayerData(player);
+    }
+}
 
 // Gets a player's object from their name.
 // Handles player's with spaces in their names aswell.
@@ -51,132 +156,5 @@ export function getPlayerFromName(playerName: string | string[]) {
                 break;
             }
         }
-    }
-}
-
-// Tries to parse the value as JSON data, and if it it fails, then returns the original data.
-export function safeJsonParser(value: string | boolean | number | Vector3 | undefined) {
-    try {
-        value = JSON.parse(value as string);
-    } catch (err) { }
-    return value;
-}
-
-// Tries to stringify JSON data, and if it fails, then returns the original data.
-export function safeJsonStringify(value: any) {
-    // If the value is an object, then stringify it.
-    // Otherwise, return the original value.
-    if (typeof value === "object") {
-        value = JSON.stringify(value)
-    }
-    return value;
-}
-
-export class PlayerData {
-    player: Player;
-
-    constructor(player: Player) {
-        this.player = player;
-    }
-
-    getEffects(): { [key: string]: EffectDataT } {
-        const effects = (this.player.getDynamicProperty("effects") as string) || "{}";
-        return safeJsonParser(effects) as unknown as { [key: string]: EffectDataT } || {};
-    }
-
-    addEffect(effectName: string, effectData: EffectDataT) {
-        const effects = this.getEffects();
-        effects[effectName] = effectData;
-        this.player.setDynamicProperty("effects", safeJsonStringify(effects));
-    }
-
-    removeEffect(effectName: string) {
-        const effects = this.getEffects();
-        delete effects[effectName];
-        this.player.setDynamicProperty("effects", safeJsonStringify(effects));
-    }
-
-    removeAllEffects() {
-        this.player.setDynamicProperty("effects", "{}");
-    }
-
-    getEffectIndex() {
-        return this.player.getDynamicProperty("effectIndex") as number || 0;
-    }
-
-    setEffectIndex(newValue: number) {
-        this.player.setDynamicProperty("effectIndex", newValue);
-    }
-
-    getRanks(): { [key: string]: number } {
-        const ranks = (this.player.getDynamicProperty("ranks") as string) || `{ "Member": 0 }`;
-        return safeJsonParser(ranks) as unknown as { [key: string]: number } || {};
-    }
-
-    hasRank(rankName: string) {
-        const ranks = this.getRanks();
-        return ranks[rankName] ? true : false;
-    }
-
-    addRank(rankName: string) {
-        let rankP = rankPriority[rankName];
-        if (!rankPriority) throw Error("Invalid rank name.");
-
-        const ranks = this.getRanks();
-        ranks[rankName] = rankP;
-
-        this.player.setDynamicProperty("ranks", safeJsonStringify(ranks));
-    }
-
-    removeRank(rankName: string) {
-        const ranks = this.getRanks();
-        if (!ranks[rankName]) return;
-
-        delete ranks[rankName];
-        this.player.setDynamicProperty("ranks", safeJsonStringify(ranks));
-    }
-
-    getPlots() {
-
-    }
-
-    setPlots() {
-
-    }
-
-    getIsBanned() {
-        return this.player.getDynamicProperty("isBanned") || false;
-    }
-
-    setIsBanned(newValue: boolean) {
-        this.player.setDynamicProperty("isBanned", newValue);
-    }
-
-    // Retrieves a player's equippable slots such as armor, mainhand, offhand.
-    getEquippable() {
-        return this.player.getComponent(EntityComponentTypes.Equippable) as EntityEquippableComponent;
-    }
-
-    getArmor() {
-        const playerEquippable = this.getEquippable();
-        return {
-            "Head": playerEquippable.getEquipment(EquipmentSlot.Head),
-            "Chest": playerEquippable.getEquipment(EquipmentSlot.Chest),
-            "Legs": playerEquippable.getEquipment(EquipmentSlot.Legs),
-            "Feet": playerEquippable.getEquipment(EquipmentSlot.Feet)
-        };
-    }
-
-    getMainhand() {
-        const playerEquippable = this.getEquippable();
-        return playerEquippable.getEquipment(EquipmentSlot.Mainhand)
-    }
-
-    getHasJoined() {
-        return this.player.getDynamicProperty("hasPlayerJoined") || false;
-    }
-
-    setHasJoined(newValue: boolean) {
-        this.player.setDynamicProperty("hasPlayerJoined", newValue);
     }
 }

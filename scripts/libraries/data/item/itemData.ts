@@ -2,8 +2,8 @@ import { EntityComponentTypes, EntityEquippableComponent, EntityInventoryCompone
 import { EffectDataT, EnchantmentDataT, ItemEffectDataT } from "../../../types";
 import { MinecraftFormatCodes, removeFormat } from "../../chatFormat";
 import { enchantmentTitles } from "../../enchantments/enchantmentHandler";
-import { safeJsonParser, safeJsonStringify } from "../player/playerData";
 import { ItemEffects } from "./effects";
+import { safeJsonParser, safeJsonStringify } from "../../../util/scripts/functions/json";
 
 function debugWarn(functionName: string, message: string) {
     console.warn(`[ItemData.${functionName}] ${message}`);

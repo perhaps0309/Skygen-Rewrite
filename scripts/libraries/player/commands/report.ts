@@ -1,6 +1,5 @@
 import { ChatSendBeforeEvent, Player, system, world } from "@minecraft/server";
 import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
-import { PlayerDataHandler } from "../../data/player/playerData";
 import { chatError } from "../../chatFormat";
 
 const reportCategories = {
@@ -38,10 +37,11 @@ const reportCommand = {
 
         const players = world.getAllPlayers();
         for (const player of players) {
-            let playerColor = PlayerDataHandler.get("rankColor", player);
-            if (!playerColor) playerColor = "§a";
+            // @TODO: Fix report command
+            // let playerColor = PlayerDataHandler.get("rankColor", player);
+            // if (!playerColor) playerColor = "§a";
 
-            form.button(playerColor + player.name);
+            // form.button(playerColor + player.name);
         }
 
         // @ts-ignore

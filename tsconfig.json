@@ -1,6 +1,6 @@
 { 
     "compilerOptions":{ 
-       "target":"ES2023",
+       "target": "ES2023",
        "moduleResolution":"Node",
        "module": "ES2020",
        "declaration":false,
@@ -16,6 +16,7 @@
        "noImplicitAny":true,
        "noImplicitReturns":false,
        "noImplicitUseStrict":false,
+       "esModuleInterop": true,
        "outDir":"lib",
        "rootDir": ".",
        "baseUrl":"behavior_packs/",

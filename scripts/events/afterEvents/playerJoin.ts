@@ -2,7 +2,7 @@ import { world, PlayerJoinAfterEvent, Player, PlayerSpawnAfterEvent, ItemStack, 
 import { MinecraftColors, MinecraftFormatCodes } from "../../libraries/chatFormat";
 import { getHighestRank } from "../../libraries/data/player/ranks";
 import { MinecraftEnchantmentTypes } from "@minecraft/vanilla-data";
-import { playersData } from "../../main";
+import { getPlayerData } from "../../libraries/data/player/playerData";
 
 // Register default player data
 const defaultData = {
@@ -15,11 +15,12 @@ const defaultData = {
 export function handlePlayerJoin(event: PlayerSpawnAfterEvent) {
     const player = event.player;
     const playerName = player.name;
+    const playerData = getPlayerData(playerName);
     const { highestPriority } = getHighestRank(player);
 
-    if (!playersData[player.name].getHasJoined()) {
+    if (!playerData.getHasJoined()) {
         world.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "BouncySkygen >> " + MinecraftFormatCodes.RESET + MinecraftColors.AQUA + playerName + MinecraftColors.WHITE + " has joined the server for the first time!\n");
-        playersData[player.name].setHasJoined(true);
+        playerData.setHasJoined(true);
     } else {
         world.sendMessage(MinecraftColors.GREEN + MinecraftFormatCodes.BOLD + "BouncySkygen >> " + MinecraftFormatCodes.RESET + MinecraftColors.AQUA + playerName + MinecraftColors.WHITE + " has joined the server again!\n");
     }

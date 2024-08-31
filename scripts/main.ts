@@ -1,6 +1,6 @@
 import { world, system, EntityComponentTypes, EntityEquippableComponent, EquipmentSlot, ItemStack, ItemDurabilityComponent, EntityInventoryComponent } from "@minecraft/server";
 import { telekinesisAfterBreak } from "./events/afterEvents/playerBreakBlock";
-import { getPlayerFromName, PlayerData } from "./libraries/data/player/playerData";
+import { getPlayerFromName, hasPlayerData, createPlayerData, getPlayerData, deletePlayerData } from "./libraries/data/player/playerData";
 import { ItemData } from "./libraries/data/item/itemData";
 import { MinecraftColors } from "./libraries/chatFormat";
 import { applyEffectProperties, rotateEffectTitles } from "./libraries/data/player/effects";
@@ -17,25 +17,22 @@ import { Vector3Builder } from "@minecraft/math";
 
 // Create a new PlayerData class instance for every player currently in the server.
 // This is mainly to support reloading.
-export const playersData: { [key: string]: PlayerData } = {};
 const allPlayers = world.getAllPlayers();
 for (const player of allPlayers) {
-	playersData[player.name] = new PlayerData(player);
+	createPlayerData(player);
 }
 
 world.beforeEvents.playerInteractWithEntity.subscribe(handleShopInteraction)
 world.afterEvents.playerSpawn.subscribe((event) => {
 	// Create a PlayerData class for anyone who spawns in for the first time.
-	if (!playersData[event.player.name]) {
-		playersData[event.player.name] = new PlayerData(event.player);
-	}
+	createPlayerData(event.player);
 
 	handlePlayerJoin(event);
 	playerSpawn(event);
 });
 
 world.afterEvents.playerLeave.subscribe((event) => {
-	delete playersData[event.playerName];
+	deletePlayerData(event.playerName);
 });
 
 world.beforeEvents.itemUseOn.subscribe(generatorCreation);
@@ -126,7 +123,7 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 			playerEquipment.setEquipment(EquipmentSlot.Mainhand, item);
 
 			// Clear effects
-			playersData[player.name].removeAllEffects();
+			getPlayerData(player.name).removeAllEffects();
 
 			let playerEffects = player.getEffects();
 			playerEffects.forEach((effect) => {
@@ -181,7 +178,7 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
 				applied: false,
 			};
 
-			const playerData = playersData[player.name];
+			const playerData = getPlayerData(player.name);
 			playerData.addEffect(newHaste.effect, newHaste);
 			playerData.addEffect(newNightVision.effect, newNightVision);
 			playerData.addEffect(newDoubleDrops.effect, newDoubleDrops);
@@ -206,7 +203,7 @@ function tickSystem() {
 		// If the player is banned, then kick them from the world.
 		const allPlayers = world.getAllPlayers()
 		for (const player of allPlayers) {
-			if (playersData[player.name].getIsBanned()) {
+			if (getPlayerData(player.name).getIsBanned()) {
 				world.getDimension("overworld").runCommand(`/kick ${player.name} You're banned from this server.`);
 			}
 

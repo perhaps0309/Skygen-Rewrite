@@ -1,6 +1,6 @@
 import { EntityEffectOptions, Player, system } from "@minecraft/server";
 import { EffectDataT, MinecraftDynamicPropertyT } from "../../../types";
-import { playersData } from "../../../main";
+import { getPlayerData } from "./playerData";
 
 /*
     Example data:
@@ -15,7 +15,7 @@ import { playersData } from "../../../main";
 
 export function applyEffectProperties(player: Player) {
     const playerName = player.name;
-    const playerData = playersData[playerName];
+    const playerData = getPlayerData(player.name);
     const playerEffects = playerData.getEffects();
     const effectNames = Object.keys(playerEffects);
 
@@ -67,7 +67,7 @@ export function applyEffectProperties(player: Player) {
 }
 
 export function rotateEffectTitles(player: Player) {
-    const playerData = playersData[player.name];
+    const playerData = getPlayerData(player.name);
     const effectKeys = Object.keys(playerData.getEffects());
     const effectIndex = playerData.getEffectIndex();
     if (effectIndex + 1 > effectKeys.length) {

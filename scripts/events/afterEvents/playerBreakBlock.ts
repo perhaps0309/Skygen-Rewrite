@@ -10,7 +10,7 @@ import {
 import { validBlockTypes, toolTypes } from "../../libraries/data/generators/generatorData";
 import { ItemData } from "../../libraries/data/item/itemData";
 import { EffectDataT, EnchantmentDataT } from "../../types";
-import { playersData } from "../../main";
+import { getPlayerData } from "../../libraries/data/player/playerData";
 
 export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
     const player = event.player;
@@ -34,7 +34,7 @@ export function telekinesisAfterBreak(event: PlayerBreakBlockAfterEvent) {
     if (!itemEnchantments) return;
 
     // Get the player's effects and apply the luck fromn the effects
-    const playerEffects = playersData[player.name].getEffects();
+    const playerEffects = getPlayerData(player.name).getEffects();
     const playerLuck = playerEffects["luck-custom"];
     let blockCount = blockData.minAmount;
     let totalLuck = playerLuck ? playerLuck.strength : 0; // Luck 1 = 1 per level, Luck 2 = 2 per level, Luck 3 = 3 per level
